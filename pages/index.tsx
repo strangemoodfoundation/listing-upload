@@ -73,8 +73,7 @@ const Home: NextPage = () => {
         <div className='my-5 border border-black p-2 rounded bg-green-200'>
           <p className='font-bold'>Using the CLI</p>
           <p>
-            To locally encrypt your file and generate keys, you will need the Precrypt CLI. You can go to the <a target={"_blank"} href="https://crates.io/crates/precrypt" className='text-blue-500 underline'>
-              Precrypt crates.io</a> page for instructions on how to install and use the CLI.
+            This is info text about how to use the strangemood cli and a link to download it.
           </p>
         </div>
 
