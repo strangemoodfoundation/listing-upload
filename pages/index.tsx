@@ -5,42 +5,43 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 
 const Home: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [resultDiv, setResultDiv] = useState((<div></div>));
-  const [metadataEndpoint, setMetadataEndpoint] = useLocalStorage('endpoint', 'https://openmetagraph.vercel.app');
   const { publicKey, signMessage } = useWallet();
 
-  // Store Key Params
-  const [recryptionKeyString, setRecryptionKeyString] = useLocalStorage('recryptKey', '');
-  const [mintAddress, setMintAddress] = useLocalStorage('mint', '');
-  const [fileCID, setFileCID] = useLocalStorage('fileCID', '');
-  const [fileExtension, setFileExtension] = useLocalStorage('extension', '');
-  const [keyCID, setKeyCID] = useLocalStorage('keyCID', '');
-  const [precryptPubkey, setPrecryptPubkey] = useLocalStorage('precryptPubkey', '');
-  const [decryptKey, setDecryptKey] = useLocalStorage('decryptKey', '');
-  const [uploadFile, setUploadFile] = useState(null);
+  // Metadata Params
+  const [metadataEndpoint, setMetadataEndpoint] = useLocalStorage('endpoint', 'https://openmetagraph.vercel.app');
+  const [name, setName] = useLocalStorage('name', '');
+  const [description, setDescription] = useLocalStorage('description', '');
+  const [categories, setCategories] = useLocalStorage('categories', new Array());
+  const [createdAt, setCreatedAt] = useLocalStorage('createdAt', 0);
+  const [tagline, setTagline] = useLocalStorage('tagline', '');
+  // TODO: Primary image
+  // TODO: Images
+  // TODO: Videos
+  // TODO: Creators
+  // TODO: Platforms
 
   async function onSubmit() {
     // Double check fields are filled out
-    if (!mintAddress || !uploadFile) return;
+    // if (!mintAddress || !uploadFile) return;
     setIsLoading(true);
 
     // Post data to openmetadata endpoint
-    const formData = new FormData;
-    formData.append('mint', mintAddress);
-    formData.append('', uploadFile as Blob);
-    console.log(formData);
+    // const formData = new FormData;
+    // formData.append('mint', mintAddress);
+    // formData.append('', uploadFile as Blob);
+    // console.log(formData);
     try {
       // Replace request with graphql to metadata endpoint
-      const resp = await fetch(`${metadataEndpoint}/file/store`, {
-        method: 'POST',
-        body: formData
-      });
-      const json = await resp.json();
-      console.log(json);
+      // const resp = await fetch(`${metadataEndpoint}/file/store`, {
+      //   method: 'POST',
+      //   body: formData
+      // });
+      // const json = await resp.json();
+      // console.log(json);
     } catch (error) {
-      if (error instanceof Error) {
-        console.log(error);
-      }
+      // if (error instanceof Error) {
+      //   console.log(error);
+      // }
     }
     setIsLoading(false);
   }
@@ -79,67 +80,56 @@ const Home: NextPage = () => {
 
         {/* FORM */}
         <div className='border-2 rounded p-2 flex flex-col gap-3'>
-          <div className='border-b-2 text-xl text-center font-bold'>Upload</div>
+          <div className='border-b-2 text-xl text-center font-bold'>Metadata</div>
           <label>
-            Recryption Key: 
-            <input
-              type={'file'}
-              onChange={async (e: any) => {
-                const file = e.target.files[0];
-                if (!file) {
-                  setRecryptionKeyString('');
-                  return
-                }
-                try {
-                  var reader = new FileReader();
-                  reader.addEventListener('load', function (e) {
-                    if (!e.target) {
-                      console.log("parse error")
-                      return;
-                    }
-                    console.log(e.target.result);
-                    setRecryptionKeyString(e.target.result as string);
-                  });
-                  reader.readAsBinaryString(file);
-                } catch (error) {
-                  console.log('Error parsing file: ', error);
-                }
-              }}
-            >
-            </input>
-          </label>
-          
-          <label>
-            Mint Address:
+            Name:
             <input
               className='border ml-2'
               type={'text'}
-              onChange={(e) => setMintAddress(e.target.value)}
-              value={mintAddress}
+              onChange={(e) => setName(e.target.value)}
+              value={name}
             />
           </label>
-          
+
           <label>
-            File CID:
+            Tagline:
             <input
               className='border ml-2'
               type={'text'}
-              onChange={(e) => setFileCID(e.target.value)}
-              value={fileCID}
+              onChange={(e) => setTagline(e.target.value)}
+              value={tagline}
             />
           </label>
-          
+
           <label>
-            File Extension:
+            Description:
+            <textarea
+              className='border ml-2'
+              onChange={(e) => setDescription(e.target.value)}
+              value={description}
+            />
+          </label>
+
+          <label>
+            Categories:
+            <textarea
+              className='border ml-2'
+              onChange={(e) => setCategories([e.target.value])}
+              value={categories}
+            />
+          </label>
+
+          <label>
+            Release Date:
             <input
               className='border ml-2'
-              type={'text'}
-              onChange={(e) => setFileExtension(e.target.value)}
-              value={fileExtension}
+              type={'number'}
+              onChange={(e) => setCreatedAt(Number.parseInt(e.target.value))}
+              value={createdAt}
             />
           </label>
-          
-          <button onClick={onSubmit} disabled={isLoading || !recryptionKeyString || !mintAddress || !fileCID || !fileExtension} className='border border-black rounded bg-gray-300 px-2 mx-auto disabled:opacity-20'>Submit</button>
+
+          <button onClick={onSubmit} disabled={isLoading} className='border border-black rounded bg-gray-300 px-2 mx-auto disabled:opacity-20'>Submit</button>
         </div>
 
         <div className='mt-5'>
@@ -149,9 +139,6 @@ const Home: NextPage = () => {
             <li>Field Name: Sentence or two describing the field.</li>
           </ul>
         </div>
-        {resultDiv && <div>
-          {resultDiv}
-        </div>}
       </div>
     </div>
   );
