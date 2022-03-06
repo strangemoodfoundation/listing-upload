@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import { MetaDataForm } from '../components/FormComponent';
 
+import { Web3Storage, File, Filelike } from 'web3.storage';
 
 const Home: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { publicKey, signMessage } = useWallet();
+  // Listing Params
 
   // Metadata Params
   const [metadataEndpoint, setMetadataEndpoint] = useLocalStorage('endpoint', 'https://openmetagraph.vercel.app');
@@ -16,10 +18,11 @@ const Home: NextPage = () => {
   const [categories, setCategories] = useLocalStorage('categories', new Array());
   const [createdAt, setCreatedAt] = useLocalStorage('createdAt', 0);
   const [tagline, setTagline] = useLocalStorage('tagline', '');
-  // const onSubmit = data => console.log(data);
-  // TODO: Primary image
-  // TODO: Images
-  // TODO: Videos
+  
+  // Media
+  const [primaryImageCID, updatePrimaryImageCID] = useLocalStorage('primaryImageCID', '');
+  const [imageCIDs, updateImageCIDs] = useLocalStorage('imageCIDs', new Array());
+  const [videoCIDs, updateVideoCIDs] = useLocalStorage('videoCIDs', new Array());
   // TODO: Creators
   // TODO: Platforms
 
@@ -48,6 +51,11 @@ const Home: NextPage = () => {
       // }
     }
     setIsLoading(false);
+  }
+
+  async function saveToWeb3Storage(web3_file: Filelike) {
+    const web3Client = new Web3Storage({ token: "asdfasdf", endpoint: new URL('https://web3proxy.fly.dev/api/web3/') });
+    return await web3Client.put([web3_file], { wrapWithDirectory: false })
   }
 
   return (
@@ -83,11 +91,90 @@ const Home: NextPage = () => {
           </p>
         </div>
 
+        {/* METADATA FORM */}
+        <form className="w-full max-w-sm">
         <div className='border-2 rounded p-2 flex flex-col gap-3'>
         <div className='border-b-2 text-xl text-center font-bold'>Metadata</div>
 
         <MetaDataForm/>
         </div>
+
+        {/* MEDIA FORM */}
+        <div className='border-2 rounded p-2 flex flex-col gap-3'>
+          <div className='border-b-2 text-xl text-center font-bold'>Media</div>
+          <div className="mb-3 w-96">
+          <label className="fblock text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4">Primary Image</label>
+            <input
+              type="file"
+              onChange={async (e: any) => {
+                const file = e.target.files[0];
+                if (!file) {
+                  updatePrimaryImageCID(``);
+                  return
+                }
+                try {
+                  const cid = await saveToWeb3Storage(file);
+                  updatePrimaryImageCID(cid.toString());
+                } catch (error) {
+                  console.log('Error uploading file: ', error);
+                }
+              }}
+            />
+            { primaryImageCID && <img className='w-1/2' src={`https://ipfs.io/ipfs/${primaryImageCID}`}></img>}
+            </div>
+
+            <div className="mb-3 w-96">
+            <label className="fblock text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4">Images</label>
+            <input
+              type="file"
+              onChange={async (e: any) => {
+                const file = e.target.files[0];
+                if (!file) { return }
+                try {
+                  const cid = await saveToWeb3Storage(file);
+                  imageCIDs.push(cid.toString());
+                  console.log(imageCIDs);
+                  updateImageCIDs(imageCIDs);
+                } catch (error) {
+                  console.log('Error uploading file: ', error);
+                }
+              }}
+            />
+            { imageCIDs.toString() }
+            </div>
+
+            <div className="mb-3 w-96">
+            <label className="fblock text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4">Videos</label>
+            <input
+              type="file"
+              onChange={async (e: any) => {
+                const file = e.target.files[0];
+                if (!file) { return }
+                try {
+                  const cid = await saveToWeb3Storage(file);
+                  updatePrimaryImageCID(cid.toString());
+                } catch (error) {
+                  console.log('Error uploading file: ', error);
+                }
+              }}
+            />
+            { videoCIDs }
+          </div>
+        </div>
+
+        <div className='border-2 rounded p-2 flex flex-col gap-3'>
+          <div className='border-b-2 text-xl text-center font-bold'>Releases</div>
+
+        </div>
+        <div className="md:flex md:items-center">
+        <div className="md:w-1/3"></div>
+          <div className="md:w-2/3">
+            <button className="shadow bg-blue-500 hover:bg-blue-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button">
+              Submit
+            </button>
+          </div>
+        </div>
+        </form>
 
         <div className='mt-5'>
           <p className='underline'>Legend</p>
