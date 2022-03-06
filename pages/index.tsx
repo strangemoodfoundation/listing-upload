@@ -2,6 +2,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import type { NextPage } from 'next';
 import { useState } from 'react';
 import { useLocalStorage } from '../lib/useLocalStorage';
+import { MetaDataForm } from '../components/FormComponent';
+
 
 const Home: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -14,11 +16,13 @@ const Home: NextPage = () => {
   const [categories, setCategories] = useLocalStorage('categories', new Array());
   const [createdAt, setCreatedAt] = useLocalStorage('createdAt', 0);
   const [tagline, setTagline] = useLocalStorage('tagline', '');
+  // const onSubmit = data => console.log(data);
   // TODO: Primary image
   // TODO: Images
   // TODO: Videos
   // TODO: Creators
   // TODO: Platforms
+
 
   async function onSubmit() {
     // Double check fields are filled out
@@ -47,6 +51,7 @@ const Home: NextPage = () => {
   }
 
   return (
+    <>
     <div>
       <div className='border-b'>
         <div className='px-4 py-4 mx-auto max-w-4xl flex flex-flex items-center justify-between'>
@@ -78,58 +83,10 @@ const Home: NextPage = () => {
           </p>
         </div>
 
-        {/* FORM */}
         <div className='border-2 rounded p-2 flex flex-col gap-3'>
-          <div className='border-b-2 text-xl text-center font-bold'>Metadata</div>
-          <label>
-            Name:
-            <input
-              className='border ml-2'
-              type={'text'}
-              onChange={(e) => setName(e.target.value)}
-              value={name}
-            />
-          </label>
+        <div className='border-b-2 text-xl text-center font-bold'>Metadata</div>
 
-          <label>
-            Tagline:
-            <input
-              className='border ml-2'
-              type={'text'}
-              onChange={(e) => setTagline(e.target.value)}
-              value={tagline}
-            />
-          </label>
-
-          <label>
-            Description:
-            <textarea
-              className='border ml-2'
-              onChange={(e) => setDescription(e.target.value)}
-              value={description}
-            />
-          </label>
-
-          <label>
-            Categories:
-            <textarea
-              className='border ml-2'
-              onChange={(e) => setCategories([e.target.value])}
-              value={categories}
-            />
-          </label>
-
-          <label>
-            Release Date:
-            <input
-              className='border ml-2'
-              type={'number'}
-              onChange={(e) => setCreatedAt(Number.parseInt(e.target.value))}
-              value={createdAt}
-            />
-          </label>
-
-          <button onClick={onSubmit} disabled={isLoading} className='border border-black rounded bg-gray-300 px-2 mx-auto disabled:opacity-20'>Submit</button>
+        <MetaDataForm/>
         </div>
 
         <div className='mt-5'>
@@ -141,6 +98,8 @@ const Home: NextPage = () => {
         </div>
       </div>
     </div>
+    </>
+
   );
 };
 
