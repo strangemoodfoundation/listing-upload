@@ -1,10 +1,10 @@
 import { useWallet } from '@solana/wallet-adapter-react';
 import type { NextPage } from 'next';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import { MetaDataForm } from '../components/FormComponent';
 
-import { Web3Storage, File, Filelike } from 'web3.storage';
+import { Web3Storage, Filelike } from 'web3.storage';
 
 const Home: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -28,28 +28,9 @@ const Home: NextPage = () => {
 
 
   async function onSubmit() {
-    // Double check fields are filled out
-    // if (!mintAddress || !uploadFile) return;
     setIsLoading(true);
 
     // Post data to openmetadata endpoint
-    // const formData = new FormData;
-    // formData.append('mint', mintAddress);
-    // formData.append('', uploadFile as Blob);
-    // console.log(formData);
-    try {
-      // Replace request with graphql to metadata endpoint
-      // const resp = await fetch(`${metadataEndpoint}/file/store`, {
-      //   method: 'POST',
-      //   body: formData
-      // });
-      // const json = await resp.json();
-      // console.log(json);
-    } catch (error) {
-      // if (error instanceof Error) {
-      //   console.log(error);
-      // }
-    }
     setIsLoading(false);
   }
 
@@ -86,8 +67,36 @@ const Home: NextPage = () => {
           {/* METADATA */}
           <div className='border-2 rounded p-2 flex flex-col gap-3'>
             <div className='border-b-2 text-xl font-bold'>Metadata</div>
-
-            <MetaDataForm />
+            <div>
+                <label className="mb-1">
+                    Name
+                </label>
+                <input value={name} onChange={(e) => setName(e.target.value)} type="text"/>
+            </div>
+            <div>
+                <label className="mb-1" >
+                    Tagline
+                </label>
+                <input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder=""  type="text"/>
+            </div>
+            <div>
+                <label className="mb-1">
+                    Description
+                </label>
+                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={5}/>
+            </div>
+            <div>
+                <label className="mb-1">
+                Categories
+                </label>
+                <input value={categories} onChange={(e) => setCategories([e.target.value])} type="text"/>
+            </div>
+            <div>
+                <label className="mb-1">
+                Created At
+                </label>
+                <input value={(new Date(createdAt)).toISOString().slice(0, 10)} onChange={(e) => setCreatedAt(e.target.valueAsNumber)} className="border-2 ml-2" type="date"/>
+            </div>
 
             {/* MEDIA  */}
             <div className='border-b-2 text-xl font-bold'>Media</div>
