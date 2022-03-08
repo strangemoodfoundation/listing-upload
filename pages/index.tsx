@@ -6,7 +6,6 @@ import { Web3Storage, Filelike } from 'web3.storage';
 import { Command } from '../components/command';
 import { TerminalIcon, UserGroupIcon } from '@heroicons/react/solid';
 import Link from 'next/link';
-import { useTriggerPalette } from '../components/command/Palette';
 import { useNotifications } from '../components/Notifications';
 
 function IconLayout(props: { label: string; children: any; href: string }) {
@@ -21,7 +20,6 @@ function IconLayout(props: { label: string; children: any; href: string }) {
 }
 
 function Layout(props: { children: any }) {
-  const triggerPalette = useTriggerPalette();
   const notify = useNotifications();
 
   return (
@@ -35,7 +33,7 @@ function Layout(props: { children: any }) {
           <button
             className="p-1 hover:opacity-70"
             onClick={() => {
-              triggerPalette();
+              notify('info', 'Press ctrl-k or cmd-k!');
             }}
           >
             <TerminalIcon className="h-4 w-4" />
@@ -54,7 +52,7 @@ function Layout(props: { children: any }) {
         id="my-cmd"
         onExecute={() => {
           console.log('hi');
-          notify('info', 'hello');
+          notify('info', 'hello I am a notification');
         }}
         search={['example command']}
         className="p-base"

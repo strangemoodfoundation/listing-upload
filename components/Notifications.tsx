@@ -122,7 +122,7 @@ export default function Notifications(props: any) {
         notify,
       }}
     >
-      <div className="fixed w-full flex flex-col z-50">{els}</div>
+      <div className="fixed w-full flex flex-col z-40">{els}</div>
       {props.children}
     </notificationCtx.Provider>
   );

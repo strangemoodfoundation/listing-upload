@@ -265,29 +265,6 @@ function PaletteBody() {
   );
 }
 
-export function useTriggerPalette() {
-  const store = usePaletteStore();
-  const commands = useCommandStore((s) => s.commands);
-
-  return function trigger() {
-    store.set((s) => {
-      // If there's no commmands on this page, don't
-      // show the command palette
-      if (Object.keys(commands).length === 0) {
-        return {
-          shown: false,
-        };
-      }
-      return {
-        ...s,
-        shown: !s.shown,
-        query: '',
-        selection: 0,
-      };
-    });
-  };
-}
-
 function useCommandK() {
   const commands = useCommandStore((s) => s.commands);
   const store = usePaletteStore((s) => s);
