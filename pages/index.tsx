@@ -91,111 +91,99 @@ const Home: NextPage = () => {
             </p>
           </div>
 
-          {/* METADATA FORM */}
-          <form className="w-full">
-            <div className='border-2 rounded p-2 flex flex-col gap-3'>
-              <div className='border-b-2 text-xl text-center font-bold'>Metadata</div>
-            
-              <MetaDataForm />
-            </div>
+          {/* METADATA */}
+          <div className='border-2 rounded p-2 flex flex-col gap-3'>
+            <div className='border-b-2 text-xl font-bold'>Metadata</div>
 
-            {/* MEDIA FORM */}
-            <div className='border-2 rounded p-2 flex flex-col gap-3'>
-              <div className='border-b-2 text-xl text-center font-bold'>Media</div>
-              <div>
-                <label className='mb-1'>Cover Image</label>
-                {!primaryImageCID &&<input
-                  type="file"
-                  onChange={async (e: any) => {
-                    const file = e.target.files[0];
-                    if (!file) {
-                      updatePrimaryImageCID(``);
-                      return
-                    }
-                    try {
-                      const cid = await saveToWeb3Storage(file);
-                      updatePrimaryImageCID(cid.toString());
-                    } catch (error) {
-                      console.log('Error uploading file: ', error);
-                    }
-                  }}
-                />}
-                {primaryImageCID && 
-                  <div className='flex flex-row gap-2 items-center'>
-                    <button onClick={() => {updatePrimaryImageCID('')}} className='bg-red-500 text-white px-2 py-1 rounded h-min'>Remove</button>
-                    <img className='w-1/2' src={`https://ipfs.io/ipfs/${primaryImageCID}`}></img>
+            <MetaDataForm />
+
+            {/* MEDIA  */}
+            <div className='border-b-2 text-xl font-bold'>Media</div>
+            <div>
+              <label className='mb-1'>Cover Image</label>
+              {!primaryImageCID && <input
+                type="file"
+                onChange={async (e: any) => {
+                  const file = e.target.files[0];
+                  if (!file) {
+                    updatePrimaryImageCID(``);
+                    return
+                  }
+                  try {
+                    const cid = await saveToWeb3Storage(file);
+                    updatePrimaryImageCID(cid.toString());
+                  } catch (error) {
+                    console.log('Error uploading file: ', error);
+                  }
+                }}
+              />}
+            </div>
+            {primaryImageCID &&
+              <div className='flex flex-col w-1/2'>
+                <img className='border-x-2 border-t-2 rounded-t' src={`https://ipfs.io/ipfs/${primaryImageCID}`}></img>
+                <button onClick={() => { updatePrimaryImageCID('') }} className='bg-red-500 text-white px-2 py-1 h-min rounded-b border-x-2 border-b-2'>Remove</button>
+              </div>
+            }
+
+            <div>
+              <label className='mb-1'>Images</label>
+              <input
+                type="file"
+                onChange={async (e: any) => {
+                  const file = e.target.files[0];
+                  if (!file) { return }
+                  try {
+                    const cid = await saveToWeb3Storage(file);
+                    updateImageCIDs(imageCIDs => [...imageCIDs, cid]);
+                  } catch (error) {
+                    console.log('Error uploading file: ', error);
+                  }
+                }}
+              />
+            </div>
+            <div className='flex flex-row w-full w-full flex-wrap'>
+              {imageCIDs.map((cid, index) => (
+                <div key={cid} className='flex flex-col items-center rounded w-1/3 overflow-hidden p-1'>
+                  <img className='w-full border-t-2 border-x-2 rounded-tr rounded-tl' src={`https://ipfs.io/ipfs/${cid}`}></img>
+                  <div className='flex flex-row w-full'>
+                    <button type='button' disabled={index == 0} onClick={() => { moveArrayValue(imageCIDs, cid, true) }} className='bg-blue-500 text-white px-2 py-1 h-min rounded-bl border-l-2 border-b-2 disabled:bg-gray-400 disabled:text-gray-300'>←</button>
+                    <button type='button' onClick={() => { updateImageCIDs(imageCIDs => imageCIDs.filter(item => item !== cid)) }} className='bg-red-500 text-white px-2 py-1 h-min border-b-2 grow'>Remove</button>
+                    <button type='button' disabled={index == (imageCIDs.length - 1)} onClick={() => { moveArrayValue(imageCIDs, cid, false) }} className='bg-blue-500 text-white px-2 py-1 h-min rounded-br border-r-2 border-b-2 disabled:bg-gray-400 disabled:text-gray-300'>→</button>
                   </div>
-                }
-              </div>
-              
-              <div>
-                <label className='mb-1'>Images</label>
-                <input
-                  type="file"
-                  onChange={async (e: any) => {
-                    const file = e.target.files[0];
-                    if (!file) { return }
-                    try {
-                      const cid = await saveToWeb3Storage(file);
-                      updateImageCIDs(imageCIDs => [...imageCIDs, cid]);
-                    } catch (error) {
-                      console.log('Error uploading file: ', error);
-                    }
-                  }}
-                />
-              </div>
-              <div className='flex flex-row w-full w-full flex-wrap'>
-                {imageCIDs.map((cid, index) => (
-                  <div key={cid} className='flex flex-col items-center rounded w-1/3 overflow-hidden p-1'>
-                    <img className='w-full border-t-2 border-x-2 rounded-tr rounded-tl' src={`https://ipfs.io/ipfs/${cid}`}></img>
-                    <div className='flex flex-row w-full'>
-                      <button type='button' disabled={index == 0} onClick={() => {moveArrayValue(imageCIDs, cid, true)}} className='bg-blue-500 text-white px-2 py-1 h-min rounded-bl border-l-2 border-b-2 disabled:bg-gray-400 disabled:text-gray-300'>←</button>
-                      <button type='button' onClick={() => {updateImageCIDs(imageCIDs => imageCIDs.filter(item => item !== cid))}} className='bg-red-500 text-white px-2 py-1 h-min border-b-2 grow'>Remove</button>
-                      <button type='button' disabled={index == (imageCIDs.length - 1)} onClick={() => {moveArrayValue(imageCIDs, cid, false)}} className='bg-blue-500 text-white px-2 py-1 h-min rounded-br border-r-2 border-b-2 disabled:bg-gray-400 disabled:text-gray-300'>→</button>  
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mb-3 w-96">
-                <label className='mb-1'>Videos</label>
-                <input
-                  type="file"
-                  onChange={async (e: any) => {
-                    const file = e.target.files[0];
-                    if (!file) { return }
-                    try {
-                      const cid = await saveToWeb3Storage(file);
-                      updatePrimaryImageCID(cid.toString());
-                    } catch (error) {
-                      console.log('Error uploading file: ', error);
-                    }
-                  }}
-                />
-                {videoCIDs}
-              </div>
+                </div>
+              ))}
             </div>
 
-            <div className='border-2 rounded p-2 flex flex-col gap-3'>
-              <div className='border-b-2 text-xl text-center font-bold'>Releases</div>
-
+            <div className="mb-3 w-96">
+              <label className='mb-1'>Videos</label>
+              <input
+                type="file"
+                onChange={async (e: any) => {
+                  const file = e.target.files[0];
+                  if (!file) { return }
+                  try {
+                    const cid = await saveToWeb3Storage(file);
+                    updatePrimaryImageCID(cid.toString());
+                  } catch (error) {
+                    console.log('Error uploading file: ', error);
+                  }
+                }}
+              />
+              {videoCIDs}
             </div>
-            <div className="md:flex md:items-center">
-              <div className="md:w-1/3"></div>
-              <div className="md:w-2/3">
-                <button className="shadow bg-blue-500 hover:bg-blue-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button">
-                  Submit
-                </button>
-              </div>
-            </div>
-          </form>
+          </div>
 
-          <div className='mt-5'>
-            <p className='underline'>Legend</p>
-            <ul className='list-disc list-inside'>
-              <li>Put info about fields here</li>
-              <li>Field Name: Sentence or two describing the field.</li>
-            </ul>
+          <div className='border-2 rounded p-2 flex flex-col gap-3'>
+            <div className='border-b-2 text-xl text-center font-bold'>Releases</div>
+
+          </div>
+          <div className="md:flex md:items-center">
+            <div className="md:w-1/3"></div>
+            <div className="md:w-2/3">
+              <button className="shadow bg-blue-500 hover:bg-blue-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button">
+                Submit
+              </button>
+            </div>
           </div>
         </div>
       </div>
