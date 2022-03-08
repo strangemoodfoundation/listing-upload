@@ -12,6 +12,7 @@ body,
   height: 100%;
   display: flex;
   flex-direction: column;
+  @apply dark:bg-gray-900 dark:text-gray-100;
 }
 
 a {
@@ -37,13 +38,13 @@ a {
   box-sizing: border-box;
 }
 
-input[type=text] {
-  @apply border-2;
-  @apply rounded;
+input[type='text'] {
+  @apply border;
   @apply w-full;
   @apply p-2;
   @apply leading-tight;
   @apply focus:border-blue-400;
+  @apply dark:bg-gray-800;
 }
 
 textarea {
@@ -53,4 +54,26 @@ textarea {
   @apply p-2;
   @apply leading-tight;
   @apply focus:border-blue-400;
+}
+
+/* push something back and make it less noticable */
+.bg-behind {
+  @apppy dark:bg-black bg-gray-50;
+}
+
+/* Pull something in front */
+.bg-foreground {
+  @apply dark:bg-gray-900 bg-white;
+}
+
+/* Everything that doesn't have a 'clear-border-color' class 
+ should use the standard border colo
+*/
+*:not(.clear-border-color) {
+  @apply border-gray-300 dark:border-gray-700;
+}
+
+/* Used to move attention away from text */
+.text-muted {
+  @apply dark:text-gray-500 text-gray-500;
 }

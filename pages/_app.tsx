@@ -1,5 +1,6 @@
 import '../styles/globals.css';
 import '../styles/wallet-adapter.css';
+import '../styles/cmd.css';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
@@ -19,12 +20,19 @@ const WalletConnectionProvider = dynamic<{ children: ReactNode }>(
   }
 );
 
+// Dynamically load these components to save on load times
+const Palette = dynamic(() => import('../components/command/Palette'));
+const Notifications = dynamic(() => import('../components/Notifications'));
+
 const MyApp: FC<AppProps> = ({ Component, pageProps }) => {
   return (
     <div className="h-full flex flex-col">
       <WalletConnectionProvider>
         <WalletModalProvider>
-          <Component {...pageProps} />
+          <Notifications>
+            <Component {...pageProps} />
+          </Notifications>
+          <Palette />
         </WalletModalProvider>
       </WalletConnectionProvider>
     </div>
