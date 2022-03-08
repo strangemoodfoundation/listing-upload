@@ -83,14 +83,6 @@ const Home: NextPage = () => {
             <p className='py-2'>This is text that gives you info about uploading your listing's data</p>
           </div>
 
-          {/* INFO BOX */}
-          <div className='my-5 border border-black p-2 rounded bg-green-200'>
-            <p className='font-bold'>Using the CLI</p>
-            <p>
-              This is info text about how to use the strangemood cli and a link to download it.
-            </p>
-          </div>
-
           {/* METADATA */}
           <div className='border-2 rounded p-2 flex flex-col gap-3'>
             <div className='border-b-2 text-xl font-bold'>Metadata</div>
@@ -171,19 +163,20 @@ const Home: NextPage = () => {
               />
               {videoCIDs}
             </div>
-          </div>
-
-          <div className='border-2 rounded p-2 flex flex-col gap-3'>
+            <div className='border-b-2 text-xl text-center font-bold'>Creator</div>
+            TODO
             <div className='border-b-2 text-xl text-center font-bold'>Releases</div>
-
-          </div>
-          <div className="md:flex md:items-center">
-            <div className="md:w-1/3"></div>
-            <div className="md:w-2/3">
-              <button className="shadow bg-blue-500 hover:bg-blue-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button">
-                Submit
-              </button>
+            {/* INFO BOX */}
+            <div className='border border-black p-2 rounded bg-green-200'>
+              <p className='font-bold'>Using the CLI</p>
+              <p>
+                This info box says use the CLI to encrypt files before uploading.
+              </p>
             </div>
+            TODO
+            <button className="shadow bg-blue-500 hover:bg-blue-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded" type="button">
+              Submit
+            </button>
           </div>
         </div>
       </div>
