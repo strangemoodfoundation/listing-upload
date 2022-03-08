@@ -58,10 +58,10 @@ const Home: NextPage = () => {
     return await web3Client.put([web3File], { wrapWithDirectory: false })
   }
 
-  function moveArrayValue(arr: string[], value: string, moveUp: boolean) {
-    let index = arr.indexOf(value);
-    let insertIndex = moveUp ? index - 1 : index + 1;
+  function moveImageCID(value: string, moveUp: boolean) {
     let imageCIDsCopy = [...imageCIDs];
+    let index = imageCIDsCopy.indexOf(value);
+    let insertIndex = moveUp ? index - 1 : index + 1;
     imageCIDsCopy = imageCIDsCopy.filter(item => item !== value);
     imageCIDsCopy.splice(insertIndex, 0, value);
     updateImageCIDs(imageCIDsCopy);
@@ -138,9 +138,9 @@ const Home: NextPage = () => {
                 <div key={cid} className='flex flex-col items-center rounded w-1/3 overflow-hidden p-1'>
                   <img className='w-full border-t-2 border-x-2 rounded-tr rounded-tl' src={`https://ipfs.io/ipfs/${cid}`}></img>
                   <div className='flex flex-row w-full'>
-                    <button type='button' disabled={index == 0} onClick={() => { moveArrayValue(imageCIDs, cid, true) }} className='bg-blue-500 text-white px-2 py-1 h-min rounded-bl border-l-2 border-b-2 disabled:bg-gray-400 disabled:text-gray-300'>←</button>
+                    <button type='button' disabled={index == 0} onClick={() => { moveImageCID(cid, true) }} className='bg-blue-500 text-white px-2 py-1 h-min rounded-bl border-l-2 border-b-2 disabled:bg-gray-400 disabled:text-gray-300'>←</button>
                     <button type='button' onClick={() => { updateImageCIDs(imageCIDs => imageCIDs.filter(item => item !== cid)) }} className='bg-red-500 text-white px-2 py-1 h-min border-b-2 grow'>Remove</button>
-                    <button type='button' disabled={index == (imageCIDs.length - 1)} onClick={() => { moveArrayValue(imageCIDs, cid, false) }} className='bg-blue-500 text-white px-2 py-1 h-min rounded-br border-r-2 border-b-2 disabled:bg-gray-400 disabled:text-gray-300'>→</button>
+                    <button type='button' disabled={index == (imageCIDs.length - 1)} onClick={() => { moveImageCID(cid, false) }} className='bg-blue-500 text-white px-2 py-1 h-min rounded-br border-r-2 border-b-2 disabled:bg-gray-400 disabled:text-gray-300'>→</button>
                   </div>
                 </div>
               ))}
