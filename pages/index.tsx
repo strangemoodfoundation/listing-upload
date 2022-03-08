@@ -54,7 +54,7 @@ const Home: NextPage = () => {
   }
 
   async function saveToWeb3Storage(web3File: Filelike) {
-    const web3Client = new Web3Storage({ token: "asdfasdf", endpoint: new URL('https://web3proxy.fly.dev/api/web3/') });
+    const web3Client = new Web3Storage({ token: "proxy_replaces", endpoint: new URL('https://web3proxy.fly.dev/api/web3/') });
     return await web3Client.put([web3File], { wrapWithDirectory: false })
   }
 
