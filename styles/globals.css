@@ -36,3 +36,21 @@ a {
 * {
   box-sizing: border-box;
 }
+
+input[type=text] {
+  @apply border-2;
+  @apply rounded;
+  @apply w-full;
+  @apply p-2;
+  @apply leading-tight;
+  @apply focus:border-blue-400;
+}
+
+textarea {
+  @apply border-2;
+  @apply rounded;
+  @apply w-full;
+  @apply p-2;
+  @apply leading-tight;
+  @apply focus:border-blue-400;
+}
