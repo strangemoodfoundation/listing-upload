@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useLocalStorage } from '../components/useLocalStorage';
 import { Web3Storage, Filelike } from 'web3.storage';
 import { Command } from '../components/command';
-import { TerminalIcon, UserGroupIcon } from '@heroicons/react/solid';
+import { HeartIcon, TerminalIcon, UserGroupIcon } from '@heroicons/react/solid';
 import Link from 'next/link';
 import { useNotifications } from '../components/Notifications';
 import { useStrangemoodMetadataStore } from '../components/store';
@@ -56,9 +56,10 @@ function Layout(props: { children: any }) {
           notify('info', 'hello I am a notification');
         }}
         search={['example command']}
-        className="p-base"
+        className="p-base justify-between flex w-full items-center"
       >
-        Example Command
+        <div>hi</div>
+        <HeartIcon className="text-blue-500 h-4 w-4" />
       </Command>
 
       <Command
@@ -71,6 +72,16 @@ function Layout(props: { children: any }) {
       >
         Another Command
       </Command>
+
+      <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-sm justify-between">
+        <a
+          href="https://github.com/strangemoodfoundation/studio"
+          className="underline text-muted"
+        >
+          Edit this website
+        </a>
+        <div className="text-muted">hi</div>
+      </div>
     </div>
   );
 }
@@ -205,8 +216,8 @@ const Home: NextPage = () => {
             <div className="w-full flex items-center">
               <div className="rounded-full h-2 w-2 bg-black dark:bg-gray-500" />
               <div className="h-px w-full bg-black dark:bg-gray-500" />
+              <button className="btn secondary p-base">Publish</button>
             </div>
-            <button className="btn secondary p-base">Publish</button>
           </div>
         </div>
       </div>
