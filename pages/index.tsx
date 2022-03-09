@@ -177,29 +177,36 @@ const Home: NextPage = () => {
             <FormElement label="title" required className="">
               <input
                 className="px-4 py-2 flex w-full bg-foreground"
-                placeholder="Title"
+                placeholder="ex: 'Form Field Simulator 2'"
                 autoFocus={true}
                 onChange={(e) => store.put('name', e.target.value)}
               />
             </FormElement>
 
-            <FormElement label="name" className="">
-              <input
-                className="px-4 py-2 flex w-full bg-foreground"
-                placeholder="Title"
+            <FormElement label="description" className="">
+              <textarea
+                className="px-4 py-2 flex w-full bg-foreground border-0"
+                placeholder="A short paragraph that appears on stores"
                 autoFocus={true}
-                onChange={(e) => store.put('name', e.target.value)}
+                onChange={(e) => store.put('description', e.target.value)}
               />
             </FormElement>
 
-            <FormElement label="name">
-              <input
-                className="px-4 py-2 flex w-full bg-foreground"
-                placeholder="Title"
-                autoFocus={true}
-                onChange={(e) => store.put('name', e.target.value)}
-              />
+            <FormElement
+              label="primary image"
+              hint="A cover image or thumbnail that appears in stores, social media embeds, and so on."
+            >
+              <div className="p-4 bg-foreground">
+                <input type={'file'} />
+              </div>
             </FormElement>
+          </div>
+          <div className="p-4 flex justify-end rounded items-center">
+            <div className="w-full flex items-center">
+              <div className="rounded-full h-2 w-2 bg-black dark:bg-gray-500" />
+              <div className="h-px w-full bg-black dark:bg-gray-500" />
+            </div>
+            <button className="btn secondary p-base">Publish</button>
           </div>
         </div>
       </div>
