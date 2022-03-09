@@ -137,47 +137,51 @@ const Home: NextPage = () => {
                 disabled={isPublishing}
               />
             </FormElement>
-            <FormElement
-              label="primary image"
-              hint="A cover image or thumbnail that appears in stores, social media embeds, and so on."
-            >
-              <div className="p-4 bg-foreground flex justify-between">
-                <input
-                  type={'file'}
-                  accept={'image/png, image/gif, image/jpeg'}
-                  onChange={(e) => onSelectImage(e).catch(console.error)}
-                  disabled={uploadingImage || isPublishing}
-                />
 
-                {uploadingImage && (
-                  <div className="text-muted animate-pulse">Uploading...</div>
-                )}
-              </div>
-            </FormElement>
-            <FormElement
-              label="primary image alt text"
-              hint="The screen-reader accessible text for the primary image."
-            >
-              <input
-                className="px-4 py-2 flex w-full bg-foreground"
-                placeholder={`ex: "${store.metadata.name || 'title'}"`}
-                autoFocus={true}
-                disabled={isPublishing}
-                value={store.metadata.primaryImage?.alt}
-                onChange={(e) =>
-                  store.set((data) => {
-                    let primaryImage = {
-                      ...(data.metadata.primaryImage || {}),
-                      alt: e.target.value,
-                    };
-                    return {
-                      ...data,
-                      metadata: { ...data.metadata, primaryImage },
-                    };
-                  })
-                }
-              />
-            </FormElement>
+            <div className="flex">
+              <FormElement
+                label="primary image"
+                hint="A cover image or thumbnail that appears in stores, social media embeds, and so on."
+              >
+                <div className="p-4 bg-foreground flex justify-between">
+                  <input
+                    type={'file'}
+                    accept={'image/png, image/gif, image/jpeg'}
+                    onChange={(e) => onSelectImage(e).catch(console.error)}
+                    disabled={uploadingImage || isPublishing}
+                  />
+
+                  {uploadingImage && (
+                    <div className="text-muted animate-pulse">Uploading...</div>
+                  )}
+                </div>
+              </FormElement>
+              <FormElement
+                label="alt text"
+                className="bg-white"
+                hint="The screen-reader accessible text for the primary image."
+              >
+                <input
+                  className="px-4 py-2 flex-1  flex w-full bg-foreground"
+                  placeholder={`ex: "${store.metadata.name || 'title'}"`}
+                  autoFocus={true}
+                  disabled={isPublishing}
+                  value={store.metadata.primaryImage?.alt}
+                  onChange={(e) =>
+                    store.set((data) => {
+                      let primaryImage = {
+                        ...(data.metadata.primaryImage || {}),
+                        alt: e.target.value,
+                      };
+                      return {
+                        ...data,
+                        metadata: { ...data.metadata, primaryImage },
+                      };
+                    })
+                  }
+                />
+              </FormElement>
+            </div>
 
             <div className="px-4 py-8 border-b border-t bg-gray-100 dark:bg-black">
               <h2 className=" font-bold text-lg ">Pricing</h2>
@@ -186,22 +190,24 @@ const Home: NextPage = () => {
               <FormElement
                 className="flex-1"
                 label="price"
-                hint="The screen-reader accessible text for the primary image."
+                hint="You can change this later if you'd like."
               >
                 <input
-                  className="px-4 py-2 flex w-full bg-foreground"
-                  placeholder={`ex: "${store.metadata.name || 'title'}"`}
+                  className="px-4 py-2 flex w-full bg-foreground h-10"
+                  placeholder={`10.00`}
+                  type="number"
                   autoFocus={true}
                   disabled={isPublishing}
                 />
               </FormElement>
               <FormElement label="Unit" hint="Currency">
-                <input
-                  className="px-4 py-2 flex w-full bg-foreground"
-                  placeholder={`ex: "${store.metadata.name || 'title'}"`}
-                  autoFocus={true}
-                  disabled={isPublishing}
-                />
+                <select
+                  id="currency"
+                  className="flex h-full p-2 h-10 border-l "
+                >
+                  <option value={'USDC'}>$ USDC</option>
+                  <option value={'SOL'}>SOL</option>
+                </select>
               </FormElement>
             </div>
 
