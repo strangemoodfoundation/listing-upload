@@ -215,7 +215,12 @@ const Home: NextPage = () => {
           <div className="p-4 flex justify-end rounded items-center">
             <div className="w-full flex items-center">
               <div className="rounded-full h-2 w-2 bg-black dark:bg-gray-500" />
-              <div className="h-px w-full bg-black dark:bg-gray-500" />
+
+              <div className="h-px flex-1 bg-black dark:bg-gray-500" />
+              <div className="font-mono text-sm flex">
+                $0.30 network fee to publish
+              </div>
+              <div className="h-px w-full bg-black dark:bg-gray-500 w-5" />
               <button className="btn secondary p-base">Publish</button>
             </div>
           </div>
