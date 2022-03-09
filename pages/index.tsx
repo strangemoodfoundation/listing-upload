@@ -7,6 +7,7 @@ import { Command } from '../components/command';
 import { TerminalIcon, UserGroupIcon } from '@heroicons/react/solid';
 import Link from 'next/link';
 import { useNotifications } from '../components/Notifications';
+import { useStrangemoodMetadataStore } from '../components/store';
 
 function IconLayout(props: { label: string; children: any; href: string }) {
   return (
@@ -74,6 +75,35 @@ function Layout(props: { children: any }) {
   );
 }
 
+function FormElement(props: {
+  children: any;
+  label: string;
+  required?: boolean;
+  className?: string;
+  hint?: string;
+}) {
+  return (
+    <label className={'flex flex-col border-b ' + props.className}>
+      <div className="text-sm flex bg-gray-50 dark:bg-gray-800 justify-between font-mono ">
+        <div className="pl-4 py-1">{props.label}</div>
+
+        {props.required && (
+          <div className="bg-gray-100 dark:bg-gray-700 border-b items-center border-l px-4 py-0.5 text-xs inline-flex">
+            required
+          </div>
+        )}
+      </div>
+
+      {props.hint && (
+        <div className="bg-gray-50 dark:bg-gray-800 text-muted text-sm px-4 pb-2">
+          {props.hint}
+        </div>
+      )}
+      <div className="">{props.children}</div>
+    </label>
+  );
+}
+
 const Home: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { publicKey, signMessage } = useWallet();
@@ -131,9 +161,48 @@ const Home: NextPage = () => {
     updateImageCIDs(imageCIDsCopy);
   }
 
+  const store = useStrangemoodMetadataStore();
+
   return (
     <Layout>
-      <div className="p-4">hi</div>
+      <div className="dark:bg-black bg-gray-50 flex flex-col h-full  w-full">
+        <div className="flex flex-col flex-1 max-w-4xl pt-12  mx-auto w-full">
+          <h1 className="mb-1 font-bold text-lg dark:text-gray-200 pt-2 px-4">
+            Create a new game for sale
+          </h1>
+          <p className="px-4 mb-4 text-muted">
+            Last saved {new Date().toLocaleTimeString()}
+          </p>
+          <div className="w-full flex  lg:border-l lg:border-r border-t flex-col w-full  bg-background">
+            <FormElement label="title" required className="">
+              <input
+                className="px-4 py-2 flex w-full bg-foreground"
+                placeholder="Title"
+                autoFocus={true}
+                onChange={(e) => store.put('name', e.target.value)}
+              />
+            </FormElement>
+
+            <FormElement label="name" className="">
+              <input
+                className="px-4 py-2 flex w-full bg-foreground"
+                placeholder="Title"
+                autoFocus={true}
+                onChange={(e) => store.put('name', e.target.value)}
+              />
+            </FormElement>
+
+            <FormElement label="name">
+              <input
+                className="px-4 py-2 flex w-full bg-foreground"
+                placeholder="Title"
+                autoFocus={true}
+                onChange={(e) => store.put('name', e.target.value)}
+              />
+            </FormElement>
+          </div>
+        </div>
+      </div>
     </Layout>
   );
 

@@ -1,4 +1,5 @@
 import create, { SetState } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface FileMetadata {
   contentType: string;
@@ -52,15 +53,25 @@ export interface StrangemoodMetadata {
 }
 
 type SetStrangemoodState = SetState<StrangemoodMetadata>;
+type PutStrangemoodState<K extends keyof StrangemoodMetadata> = (
+  key: K,
+  value: StrangemoodMetadata[K]
+) => void;
 
 interface StrangemoodMetadataStore {
   set: SetStrangemoodState;
+
+  // Set an individual key.
+  put: PutStrangemoodState<keyof StrangemoodMetadata>;
   metadata: StrangemoodMetadata;
 }
 
 export const useStrangemoodMetadataStore = create<StrangemoodMetadataStore>(
   (set) => ({
     metadata: {} as StrangemoodMetadata,
-    set,
+    set: set,
+    put: (key, value) => {
+      set((state) => ({ ...state, [key]: value }));
+    },
   })
 );
