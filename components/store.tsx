@@ -1,5 +1,6 @@
 import create, { SetState } from 'zustand';
 import { persist } from 'zustand/middleware';
+import lodashSet from 'lodash/set';
 
 export interface FileMetadata {
   contentType: string;
@@ -70,8 +71,10 @@ export const useStrangemoodMetadataStore = create<StrangemoodMetadataStore>(
   (set) => ({
     metadata: {} as StrangemoodMetadata,
     set: set,
-    put: (key, value) => {
-      set((state) => ({ ...state, [key]: value }));
-    },
+    put: (key, value) =>
+      set((state) => ({
+        ...state,
+        metadata: { ...state.metadata, [key]: value },
+      })),
   })
 );

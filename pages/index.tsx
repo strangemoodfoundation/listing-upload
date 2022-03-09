@@ -3,88 +3,9 @@ import type { NextPage } from 'next';
 import { useState } from 'react';
 import { useLocalStorage } from '../components/useLocalStorage';
 import { Web3Storage, Filelike } from 'web3.storage';
-import { Command } from '../components/command';
-import { HeartIcon, TerminalIcon, UserGroupIcon } from '@heroicons/react/solid';
-import Link from 'next/link';
-import { useNotifications } from '../components/Notifications';
 import { useStrangemoodMetadataStore } from '../components/store';
-
-function IconLayout(props: { label: string; children: any; href: string }) {
-  return (
-    <Link href={props.href}>
-      <a className="flex flex-col px-4 py-2 dark:hover:bg-gray-700 hover:bg-blue-200 items-center justify-center">
-        {props.children}
-        <div className="text-xs text-muted">{props.label}</div>
-      </a>
-    </Link>
-  );
-}
-
-function Layout(props: { children: any }) {
-  const notify = useNotifications();
-
-  return (
-    <div className="flex flex-col h-full">
-      <div className="border-b border-gray-normal dark:bg-black bg-gray-50">
-        <div className="px-4 py-1 mx-auto flex flex-flex items-center justify-between">
-          <h1 className="text-center text-sm dark:text-gray-500 m-0 p-0">
-            Strangemood
-          </h1>
-
-          <button
-            className="p-1 hover:opacity-70"
-            onClick={() => {
-              notify('info', 'Press ctrl-k or cmd-k!');
-            }}
-          >
-            <TerminalIcon className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-      <div className="h-full flex flex-row">
-        <div className="py-4 dark:bg-black bg-gray-50  border-r h-full">
-          <IconLayout label="people" href="#">
-            <UserGroupIcon className="h-4 w-4" />
-          </IconLayout>
-        </div>
-        {props.children}
-      </div>
-      <Command
-        id="my-cmd"
-        onExecute={() => {
-          console.log('hi');
-          notify('info', 'hello I am a notification');
-        }}
-        search={['example command']}
-        className="p-base justify-between flex w-full items-center"
-      >
-        <div>hi</div>
-        <HeartIcon className="text-blue-500 h-4 w-4" />
-      </Command>
-
-      <Command
-        id="another-cmd"
-        onExecute={() => {
-          console.log('hi');
-        }}
-        search={['another command']}
-        className="p-base"
-      >
-        Another Command
-      </Command>
-
-      <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-sm justify-between">
-        <a
-          href="https://github.com/strangemoodfoundation/studio"
-          className="underline text-muted"
-        >
-          Edit this website
-        </a>
-        <div className="text-muted">hi</div>
-      </div>
-    </div>
-  );
-}
+import { Layout } from '../components/Layout';
+import { imageConfigDefault } from 'next/dist/server/image-config';
 
 function FormElement(props: {
   children: any;
@@ -115,6 +36,19 @@ function FormElement(props: {
   );
 }
 
+async function asImage(file: Blob | MediaSource): Promise<HTMLImageElement> {
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+  return new Promise((resolve, reject) => {
+    img.onload = () => {
+      resolve(img);
+    };
+    img.onerror = () => {
+      reject(new Error('Failed to load image'));
+    };
+  });
+}
+
 const Home: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { publicKey, signMessage } = useWallet();
@@ -139,21 +73,6 @@ const Home: NextPage = () => {
     'primaryImageCID',
     ''
   );
-  const [imageCIDs, updateImageCIDs] = useLocalStorage(
-    'imageCIDs',
-    new Array<string>()
-  );
-  const [videoCIDs, updateVideoCIDs] = useLocalStorage(
-    'videoCIDs',
-    new Array<string>()
-  );
-
-  async function onSubmit() {
-    setIsLoading(true);
-
-    // Post data to openmetadata endpoint
-    setIsLoading(false);
-  }
 
   async function saveToWeb3Storage(web3File: Filelike) {
     const web3Client = new Web3Storage({
@@ -163,16 +82,29 @@ const Home: NextPage = () => {
     return await web3Client.put([web3File], { wrapWithDirectory: false });
   }
 
-  function moveImageCID(value: string, moveUp: boolean) {
-    let imageCIDsCopy = [...imageCIDs];
-    let index = imageCIDsCopy.indexOf(value);
-    let insertIndex = moveUp ? index - 1 : index + 1;
-    imageCIDsCopy = imageCIDsCopy.filter((item) => item !== value);
-    imageCIDsCopy.splice(insertIndex, 0, value);
-    updateImageCIDs(imageCIDsCopy);
-  }
-
   const store = useStrangemoodMetadataStore();
+
+  async function onSelectImage(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.files) return;
+    const file = e.target.files[0];
+    if (!file || !file.name) return;
+
+    const cid = await saveToWeb3Storage(file);
+    const img = await asImage(file);
+
+    store.set((data) => {
+      data.primaryImage = {
+        ...(data.primaryImage || {}),
+        src: {
+          uri: 'https://ipfs.io/ipfs/' + cid,
+          contentType: file.type,
+        },
+        width: img.width,
+        height: img.height,
+        type: file.type,
+      };
+    });
+  }
 
   return (
     <Layout>
@@ -190,6 +122,7 @@ const Home: NextPage = () => {
                 className="px-4 py-2 flex w-full bg-foreground"
                 placeholder="ex: 'Form Field Simulator 2'"
                 autoFocus={true}
+                value={store.metadata.name}
                 onChange={(e) => store.put('name', e.target.value)}
               />
             </FormElement>
@@ -199,6 +132,7 @@ const Home: NextPage = () => {
                 className="px-4 py-2 flex w-full bg-foreground border-0"
                 placeholder="A short paragraph that appears on stores"
                 autoFocus={true}
+                value={store.metadata.description}
                 onChange={(e) => store.put('description', e.target.value)}
               />
             </FormElement>
@@ -208,8 +142,36 @@ const Home: NextPage = () => {
               hint="A cover image or thumbnail that appears in stores, social media embeds, and so on."
             >
               <div className="p-4 bg-foreground">
-                <input type={'file'} />
+                <input
+                  type={'file'}
+                  accept={'image/png, image/gif, image/jpeg'}
+                  onChange={onSelectImage}
+                />
               </div>
+            </FormElement>
+
+            <FormElement
+              label="primary image alt text"
+              hint="The screen-reader accessible text for the primary image."
+            >
+              <input
+                className="px-4 py-2 flex w-full bg-foreground"
+                placeholder={`ex: "${store.metadata.name || 'title'}"`}
+                autoFocus={true}
+                value={store.metadata.primaryImage?.alt}
+                onChange={(e) =>
+                  store.set((data) => {
+                    let primaryImage = {
+                      ...(data.primaryImage || {}),
+                      alt: e.target.value,
+                    };
+                    return {
+                      ...data,
+                      primaryImage,
+                    };
+                  })
+                }
+              />
             </FormElement>
           </div>
           <div className="p-4 flex justify-end rounded items-center">
