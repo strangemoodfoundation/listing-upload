@@ -17,7 +17,7 @@ interface StrangemoodMetadataStore {
   metadata: StrangemoodMetadata;
 }
 
-export const useStrangemoodMetadataStore = create<StrangemoodMetadataStore>(
+export const useStrangemoodListing = create<StrangemoodMetadataStore>(
   (set) => ({
     metadata: {} as StrangemoodMetadata,
     set: set,

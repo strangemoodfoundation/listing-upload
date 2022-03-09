@@ -1,15 +1,17 @@
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import type { NextPage } from 'next';
 import { useState } from 'react';
 import { useLocalStorage } from '../components/useLocalStorage';
 import { Web3Storage, Filelike } from 'web3.storage';
-import { useStrangemoodMetadataStore } from '../components/store';
+import { useStrangemoodListing } from '../components/store';
 import { Layout } from '../components/Layout';
 import { asImage } from '../lib/asImage';
 import { saveFile, saveJson } from '../lib/storage';
 import { metadataToOpenMetaGraph } from '../lib/metadata';
 import { useNotifications } from '../components/Notifications';
 import cn from 'classnames';
+import { grabStrangemood } from '../components/strangemood';
+import { initListing } from '@strangemood/strangemood';
 
 function FormElement(props: {
   children: any;
@@ -19,7 +21,7 @@ function FormElement(props: {
   hint?: string;
 }) {
   return (
-    <label className={'flex flex-col border-b ' + props.className}>
+    <label className={'flex flex-col  ' + props.className}>
       <div className="text-sm flex bg-gray-50 dark:bg-gray-800 justify-between font-mono ">
         <div className="pl-4 py-1">{props.label}</div>
 
@@ -45,7 +47,9 @@ const Home: NextPage = () => {
 
   const [uploadingImage, setUploadingImage] = useState(false);
   const notify = useNotifications();
-  const store = useStrangemoodMetadataStore();
+  const store = useStrangemoodListing();
+  const [price, setPrice] = useState<number>(0);
+  const [bounty, setBounty] = useState<number>(0);
 
   async function onSelectImage(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files) return;
@@ -72,6 +76,9 @@ const Home: NextPage = () => {
   }
 
   const [isPublishing, setIsPublishing] = useState(false);
+  const wallet = useWallet();
+  const { connection } = useConnection();
+
   async function onPublish() {
     if (!store.metadata || !store.metadata.primaryImage) {
       notify('error', 'Please select an image');
@@ -80,15 +87,25 @@ const Home: NextPage = () => {
     }
     notify('info', 'Uploading...');
     setIsPublishing(true);
+
+    // upload metadata to IPFS
     const doc = await metadataToOpenMetaGraph(store.metadata, saveJson);
     const cid = await saveJson(doc);
+
+    // Create a new listing
+    const program = await grabStrangemood(connection, wallet);
+    // initListing({
+    //   program,
+
+    // })
+
     setIsPublishing(false);
     notify('info', cid);
   }
 
   return (
     <Layout>
-      <div className="dark:bg-gray-900 bg-gray-50 flex flex-col h-full  w-full">
+      <div className="dark:bg-gray-900 bg-gray-50 flex flex-col w-full pb-12">
         <div className="flex flex-col flex-1 max-w-4xl pt-12  mx-auto w-full">
           <h1 className="mb-1 font-bold text-lg dark:text-gray-200 pt-2 px-4">
             Create a new game for sale
@@ -96,7 +113,10 @@ const Home: NextPage = () => {
           <p className="px-4 mb-4 text-muted">
             Last saved {new Date().toLocaleTimeString()}
           </p>
-          <div className="w-full flex  lg:border-l lg:border-r border-t flex-col w-full  bg-background">
+          <div className="w-full flex lg:border-l lg:border-r border-t border-b flex-col w-full  bg-background">
+            <div className="px-4 py-8 border-b bg-gray-100 dark:bg-black">
+              <h2 className=" font-bold text-lg ">Basics</h2>
+            </div>
             <FormElement label="title" required className="">
               <input
                 className="px-4 py-2 flex w-full bg-foreground"
@@ -107,7 +127,6 @@ const Home: NextPage = () => {
                 disabled={isPublishing}
               />
             </FormElement>
-
             <FormElement label="description" className="">
               <textarea
                 className="px-4 py-2 flex w-full bg-foreground border-0"
@@ -118,7 +137,6 @@ const Home: NextPage = () => {
                 disabled={isPublishing}
               />
             </FormElement>
-
             <FormElement
               label="primary image"
               hint="A cover image or thumbnail that appears in stores, social media embeds, and so on."
@@ -136,7 +154,6 @@ const Home: NextPage = () => {
                 )}
               </div>
             </FormElement>
-
             <FormElement
               label="primary image alt text"
               hint="The screen-reader accessible text for the primary image."
@@ -161,17 +178,64 @@ const Home: NextPage = () => {
                 }
               />
             </FormElement>
-          </div>
-          <div className="p-4 flex justify-end rounded items-center">
-            <div className="w-full flex items-center">
-              <div className="rounded-full h-2 w-2 bg-black dark:bg-gray-500" />
 
+            <div className="px-4 py-8 border-b border-t bg-gray-100 dark:bg-black">
+              <h2 className=" font-bold text-lg ">Pricing</h2>
+            </div>
+            <div className="flex">
+              <FormElement
+                className="flex-1"
+                label="price"
+                hint="The screen-reader accessible text for the primary image."
+              >
+                <input
+                  className="px-4 py-2 flex w-full bg-foreground"
+                  placeholder={`ex: "${store.metadata.name || 'title'}"`}
+                  autoFocus={true}
+                  disabled={isPublishing}
+                />
+              </FormElement>
+              <FormElement label="Unit" hint="Currency">
+                <input
+                  className="px-4 py-2 flex w-full bg-foreground"
+                  placeholder={`ex: "${store.metadata.name || 'title'}"`}
+                  autoFocus={true}
+                  disabled={isPublishing}
+                />
+              </FormElement>
+            </div>
+
+            <div className="flex">
+              <FormElement
+                className="flex-1 "
+                label="% of sale shared with a marketplace"
+                hint="The amount of each sale that goes to a marketplace that begins the sale. Setting a higher number may make you appear in more stores, and potentially earn more sales."
+              >
+                <div className="px-4 py-2 flex items-center">
+                  <div className="font-mono text-sm ">10</div>
+                  <div>%</div>
+                  <input
+                    className="ml-4 inline-flex w-full bg-foreground"
+                    placeholder={`ex: "${store.metadata.name || 'title'}"`}
+                    autoFocus={true}
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="10"
+                    disabled={isPublishing}
+                  />
+                </div>
+              </FormElement>
+            </div>
+          </div>
+          <div className="pr-4 pt-4 flex justify-end rounded items-center">
+            <div className="w-full flex items-center">
               <div className="h-px flex-1 bg-black dark:bg-gray-500" />
-              <div className="font-mono text-sm inline">
+              <div className="font-mono text-sm inline px-1">
                 <div className="text-green-600 inline">$0.30</div> network fee
                 to publish
               </div>
-              <div className="h-px w-full bg-black dark:bg-gray-500 w-5" />
+              <div className="h-px w-full bg-black dark:bg-gray-500 w-4" />
               <button
                 className="btn secondary p-base disabled:opacity-20"
                 disabled={
