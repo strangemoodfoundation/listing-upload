@@ -1,0 +1,64 @@
+/**
+ * Modals
+ */
+
+.modal {
+  transform: translate(-50%, -25%);
+  @apply top-1/4 left-1/2 right-auto bottom-auto absolute m-auto w-full outline-none;
+}
+
+.shadow-modal {
+  --tw-shadow: 0 50px 75px -12px rgba(0, 0, 0, 0.8);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/**
+ * Commands
+ */
+.cmd {
+  @apply flex;
+}
+.cmd.p-base {
+  @apply px-6 py-4;
+}
+
+:not(.no-modal-animate).ReactModal__Overlay {
+  transform: scale(0.95);
+  transition: all 80ms ease-out;
+}
+
+:not(.no-modal-animate).ReactModal__Overlay--after-open {
+  transform: scale(1);
+}
+
+:not(.no-modal-animate).ReactModal__Overlay--before-close {
+  transform: scale(0.95);
+}
+
+.ReactModal__Content {
+  transition: all 80ms ease-out;
+  --tw-shadow: 0 0px 0px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.ReactModal__Content--after-open {
+  --tw-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.ReactModal__Content--before-close {
+  --tw-shadow: 0 0px 0px 0px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}

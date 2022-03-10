@@ -14,7 +14,7 @@ import {
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
 import { FC, ReactNode, useMemo } from 'react';
-import { useFlag } from '../lib/useFlag';
+import { useFlag } from '../components/useFlag';
 
 let networks = {
   'mainnet-beta': WalletAdapterNetwork.Mainnet,
