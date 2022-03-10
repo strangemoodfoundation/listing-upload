@@ -43,13 +43,11 @@ function FormElement(props: {
 }
 
 const Home: NextPage = () => {
-  const [isLoading, setIsLoading] = useState(false);
-
   const [uploadingImage, setUploadingImage] = useState(false);
   const notify = useNotifications();
   const store = useStrangemoodListing();
-  const [price, setPrice] = useState<number>(0);
-  const [bounty, setBounty] = useState<number>(0);
+  const [price, setPrice] = useState<number>(0.0001);
+  const [bounty, setBounty] = useState<number>(10);
 
   async function onSelectImage(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files) return;
@@ -196,6 +194,8 @@ const Home: NextPage = () => {
                   className="px-4 py-2 flex w-full bg-foreground h-10"
                   placeholder={`10.00`}
                   type="number"
+                  value={price}
+                  onChange={(e) => setPrice(parseFloat(e.target.value))}
                   autoFocus={true}
                   disabled={isPublishing}
                 />
@@ -203,10 +203,11 @@ const Home: NextPage = () => {
               <FormElement label="Unit" hint="Currency">
                 <select
                   id="currency"
-                  className="flex h-full p-2 h-10 border-l "
+                  className="flex h-full p-2 w-full h-10 border-l "
                 >
-                  <option value={'USDC'}>$ USDC</option>
-                  <option value={'SOL'}>SOL</option>
+                  <option className="w-full" value={'SOL'}>
+                    SOL
+                  </option>
                 </select>
               </FormElement>
             </div>
@@ -218,17 +219,18 @@ const Home: NextPage = () => {
                 hint="The amount of each sale that goes to a marketplace that begins the sale. Setting a higher number may make you appear in more stores, and potentially earn more sales."
               >
                 <div className="px-4 py-2 flex items-center">
-                  <div className="font-mono text-sm ">10</div>
-                  <div>%</div>
+                  <div className="font-mono text-sm w-12">{bounty} %</div>
+
                   <input
-                    className="ml-4 inline-flex w-full bg-foreground"
+                    className="ml-4 inline-flex w-full bg-foreground transition-all"
                     placeholder={`ex: "${store.metadata.name || 'title'}"`}
                     autoFocus={true}
                     type="range"
                     min="0"
                     max="100"
-                    value="10"
+                    value={bounty}
                     disabled={isPublishing}
+                    onChange={(e) => setBounty(parseFloat(e.target.value))}
                   />
                 </div>
               </FormElement>
