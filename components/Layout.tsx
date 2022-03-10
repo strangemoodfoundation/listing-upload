@@ -52,11 +52,19 @@ function WalletPage() {
           </button>
           <div className="pt-4 px-4 w-96 text-sm dark:text-gray-400 text-gray-600">
             Connect a Solana Wallet to continue. We'd recommend using{' '}
-            <a className="underline" href="https://phantom.app/download">
+            <a
+              className="underline"
+              href="https://phantom.app/download"
+              target={'_blank'}
+            >
               Phantom for desktop{''}
             </a>{' '}
             or a{' '}
-            <a className="underline" href="https://www.ledger.com/">
+            <a
+              className="underline"
+              href="https://www.ledger.com/"
+              target={'_blank'}
+            >
               Ledger hardware wallet.
             </a>
           </div>

@@ -24,14 +24,11 @@ let networks = {
 export const WalletConnectionProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const flag = useFlag('network', 'mainnet-beta');
+  const flag = useFlag('network', 'testnet');
   const network = networks[flag];
 
   // You can also provide a custom RPC endpoint
-  const endpoint =
-    flag == 'mainnet-beta'
-      ? 'https://ssc-dao.genesysgo.net/'
-      : "'https://rpc-testnet.rebasefoundation.org/'";
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   // @solana/wallet-adapter-wallets includes all the adapters but supports tree shaking --
   // Only the wallets you configure here will be compiled into your application

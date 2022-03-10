@@ -12,6 +12,9 @@ import { useNotifications } from '../components/Notifications';
 import cn from 'classnames';
 import { grabStrangemood } from '../components/strangemood';
 import { initListing } from '@strangemood/strangemood';
+import { BN } from '@project-serum/anchor';
+import * as splToken from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
 
 function FormElement(props: {
   children: any;
@@ -92,10 +95,18 @@ const Home: NextPage = () => {
 
     // Create a new listing
     const program = await grabStrangemood(connection, wallet);
-    // initListing({
-    //   program,
-
-    // })
+    initListing({
+      program,
+      signer: program.provider.wallet.publicKey,
+      uri: 'ipfs://' + cid,
+      price: new BN(price * 1000000000),
+      currency: splToken.NATIVE_MINT,
+      cashierSplit: bounty / 100,
+      isAvailable: false,
+      isConsumable: false,
+      isRefundable: false,
+      charter: new PublicKey(''),
+    });
 
     setIsPublishing(false);
     notify('info', cid);
