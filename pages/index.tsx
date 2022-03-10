@@ -156,7 +156,7 @@ const Home: NextPage = () => {
               </FormElement>
               <FormElement
                 label="alt text"
-                className="bg-white"
+                className="bg-white dark:bg-gray-900"
                 hint="The screen-reader accessible text for the primary image."
               >
                 <input
@@ -203,7 +203,7 @@ const Home: NextPage = () => {
               <FormElement label="Unit" hint="Currency">
                 <select
                   id="currency"
-                  className="flex h-full p-2 w-full h-10 border-l "
+                  className="flex h-full p-2 w-full h-10 border-l  dark:bg-gray-900"
                 >
                   <option className="w-full" value={'SOL'}>
                     SOL
