@@ -128,7 +128,7 @@ const Home: NextPage = () => {
             </div>
             <FormElement label="title" required className="">
               <input
-                className="px-4 py-2 flex w-full bg-foreground"
+                className="px-4 py-2 flex w-full bg-foreground "
                 placeholder="ex: 'Form Field Simulator 2'"
                 autoFocus={true}
                 value={store.metadata.name}
