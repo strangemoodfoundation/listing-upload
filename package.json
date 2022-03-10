@@ -20,6 +20,8 @@
     "bn.js": "^5.2.0",
     "classnames": "^2.3.1",
     "fuse.js": "^6.5.3",
+    "graphql": "^16.3.0",
+    "graphql-request": "^4.1.0",
     "lodash": "^4.17.21",
     "next": "^12.0.7",
     "openmetagraph": "^0.0.2",

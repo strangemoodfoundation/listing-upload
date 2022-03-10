@@ -126,8 +126,8 @@ export async function metadataToOpenMetaGraph(
     [
       str('name', metadata.name),
       str('description', metadata.description),
-      num('createdAt', metadata.createdAt),
-      num('updatedAt', metadata.updatedAt),
+      num('createdAt', metadata.createdAt || new Date().getTime()),
+      num('updatedAt', metadata.updatedAt || new Date().getTime()),
       await imageNode('primaryImage', metadata.primaryImage),
     ],
     ['QmRcvWdCSQXdVdwLpsepqb8BAvfR9SJLDtk1LnrwjNnGvd']

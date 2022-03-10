@@ -1,20 +1,18 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import type { NextPage } from 'next';
 import { useState } from 'react';
-import { useLocalStorage } from '../components/useLocalStorage';
-import { Web3Storage, Filelike } from 'web3.storage';
 import { useStrangemoodListing } from '../components/store';
 import { Layout } from '../components/Layout';
 import { asImage } from '../lib/asImage';
 import { saveFile, saveJson } from '../lib/storage';
 import { metadataToOpenMetaGraph } from '../lib/metadata';
 import { useNotifications } from '../components/Notifications';
-import cn from 'classnames';
 import { grabStrangemood } from '../components/strangemood';
 import { initListing } from '@strangemood/strangemood';
 import { BN } from '@project-serum/anchor';
 import * as splToken from '@solana/spl-token';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
+import { useRouter } from 'next/router';
 
 function FormElement(props: {
   children: any;
@@ -79,6 +77,7 @@ const Home: NextPage = () => {
   const [isPublishing, setIsPublishing] = useState(false);
   const wallet = useWallet();
   const { connection } = useConnection();
+  const router = useRouter();
 
   async function onPublish() {
     if (!store.metadata || !store.metadata.primaryImage) {
@@ -93,9 +92,11 @@ const Home: NextPage = () => {
     const doc = await metadataToOpenMetaGraph(store.metadata, saveJson);
     const cid = await saveJson(doc);
 
+    notify('info', 'Created metadata...');
+
     // Create a new listing
     const program = await grabStrangemood(connection, wallet);
-    initListing({
+    const inx = await initListing({
       program,
       signer: program.provider.wallet.publicKey,
       uri: 'ipfs://' + cid,
@@ -105,11 +106,16 @@ const Home: NextPage = () => {
       isAvailable: false,
       isConsumable: false,
       isRefundable: false,
-      charter: new PublicKey(''),
+      // Testnet charter
+      charter: new PublicKey('8iKjJx3hUNB2mtzMXnoghYiGy73GZXUW8vu8h1ASQDTR'),
     });
+    let tx = new Transaction();
+    tx.add(...inx.instructions);
+    await program.provider.send(tx, inx.signers);
 
     setIsPublishing(false);
-    notify('info', cid);
+    router.push('/listings/' + inx.listing.toBase58());
+    notify('info', inx.listing.toBase58());
   }
 
   return (
