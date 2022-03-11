@@ -112,12 +112,12 @@ export function Layout(props: { children: any }) {
           </button>
         </div>
       </div>
-      <div className="flex flex-row">
-        <div className="py-4 dark:bg-black bg-gray-50  border-r h-full">
+      <div className="flex flex-row h-full">
+        {/* <div className="py-4 dark:bg-black bg-gray-50  border-r h-full">
           <IconLayout label="people" href="#">
             <UserGroupIcon className="h-4 w-4" />
           </IconLayout>
-        </div>
+        </div> */}
         {props.children}
       </div>
       <Command

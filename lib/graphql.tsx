@@ -3,8 +3,6 @@ import { request, gql } from 'graphql-request';
 export interface ListingMetadata {
   name: string;
   description: string;
-  tagline: string;
-  images: string[];
   primaryImage: string;
 }
 
@@ -37,8 +35,6 @@ export async function getListingMetadata(
   return {
     name: data.get.name,
     description: data.get.description,
-    tagline: 'todo',
-    images: data.get.images.map((image: any) => image.uri),
-    primaryImage: data.get.primaryImage.uri,
+    primaryImage: data.get.primaryImage.uri || '',
   };
 }

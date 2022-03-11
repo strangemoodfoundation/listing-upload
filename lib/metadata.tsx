@@ -1,6 +1,7 @@
 import {
   OpenMetaGraph,
   OpenMetaGraphElement,
+  OpenMetaGraphFileElement,
   OpenMetaGraphNodeElement,
   OpenMetaGraphNumberElement,
   OpenMetaGraphStringElement,
@@ -12,7 +13,9 @@ export const SCHEMAS = {
   TIMESTAMPS: 'QmYuekxuXRN8JmothpSGrjsDKtokSpdsKmjBJy9UommeL7',
   LISTING: 'QmTQQoP6d2vz5S1JvJdpzj1g9P4yY55nqYsueBnBQM8oR6',
   WITH_PLATFORMS: 'QmcWAxKACUKhkmrQxMg2jZHb8pCBYvBMEPdemvqCyt8gQd',
+  PLATFORM: 'QmQxk73K9kqZYoHtmeTMMAhVthKM37v8iEjFQBy7BpJKQp',
   IMAGE: 'QmULNXS47mirHDh3fr2nMvaGsBbBVgy6aweNVvwJMFxQGN',
+  FILE: 'QmNZbtpfw4E1w1wcgE1Mrr6Cd4qSk3JWm3AePriAFsNF2z',
 };
 
 export interface FileMetadata {
@@ -20,7 +23,7 @@ export interface FileMetadata {
   uri: string;
 }
 
-export interface ImageMetadata {
+export interface ImageNodeMetadata {
   alt: string;
   height: number;
   width: number;
@@ -28,42 +31,48 @@ export interface ImageMetadata {
   src: string;
 }
 
-export interface VideoMetadata {
+export interface VideoNodeMetadata {
   height: number;
   width: number;
   type: string;
   src: string;
 }
 
-export interface SocialLinkMetadata {
+export interface SocialLinkNodeMetadata {
   type: string;
   url: string;
 }
 
-export interface CreatorMetadata {
+export interface CreatorNodeMetadata {
   bio: string;
-  links: SocialLinkMetadata[];
+  links: SocialLinkNodeMetadata[];
   name: string;
-  primaryImage: ImageMetadata;
+  primaryImage: ImageNodeMetadata;
 }
 
-export interface PlatformMetadata {
-  contents: FileMetadata[];
+export interface PlatformNodeMetadata {
+  contents: FileNodeMetadata[];
+  type: string;
+}
+
+export interface FileNodeMetadata {
+  name: string;
+  src: string;
   type: string;
 }
 
 export interface StrangemoodMetadata {
   name: string;
   description: string;
-  primaryImage: ImageMetadata;
+  primaryImage: ImageNodeMetadata;
   createdAt: number;
   updatedAt: number;
-  creators: CreatorMetadata[];
-  images: ImageMetadata[];
-  links: SocialLinkMetadata[];
+  creators: CreatorNodeMetadata[];
+  images: ImageNodeMetadata[];
+  links: SocialLinkNodeMetadata[];
   tags: string[];
-  videos: VideoMetadata[];
-  platforms: PlatformMetadata[];
+  videos: VideoNodeMetadata[];
+  platforms: PlatformNodeMetadata[];
 }
 
 // TODO: we should autogenerate a mutation for OMG documents
@@ -76,14 +85,14 @@ export async function metadataToOpenMetaGraph(
     return {
       object: 'number',
       key,
-      value,
+      value: value || 0,
     };
   }
   function str(key: string, value: string): OpenMetaGraphStringElement {
     return {
       object: 'string',
       key,
-      value,
+      value: value || '',
     };
   }
   function omg(
@@ -100,7 +109,7 @@ export async function metadataToOpenMetaGraph(
 
   async function imageNode(
     key: string,
-    value: ImageMetadata
+    value: ImageNodeMetadata
   ): Promise<OpenMetaGraphNodeElement> {
     if (!value) throw new Error('imageNode is not found');
     const doc = omg(
@@ -122,6 +131,60 @@ export async function metadataToOpenMetaGraph(
     };
   }
 
+  async function fileNode(
+    key: string,
+    value: FileNodeMetadata
+  ): Promise<OpenMetaGraphNodeElement> {
+    const doc = omg(
+      [str('name', value.name), str('src', value.src), str('type', value.type)],
+      [SCHEMAS.FILE]
+    );
+
+    return {
+      object: 'node',
+      key: key,
+      uri: await upload(doc),
+    };
+  }
+
+  async function platformNode(
+    key: string,
+    value: PlatformNodeMetadata
+  ): Promise<OpenMetaGraphNodeElement> {
+    if (!value) throw new Error('platformMetadata is not found');
+
+    const contents = (await Promise.all(
+      value.contents.map(async (c) => {
+        const doc = omg(
+          [str('name', c.name), str('src', c.src), str('type', c.type)],
+          [SCHEMAS.FILE]
+        );
+
+        const uri = await upload(doc);
+        return {
+          object: 'node',
+          key: 'contents',
+          uri,
+        };
+      })
+    )) as OpenMetaGraphNodeElement[];
+
+    const doc = omg([str('type', value.type), ...contents], [SCHEMAS.PLATFORM]);
+
+    const uri = await upload(doc);
+    return {
+      object: 'node',
+      key,
+      uri,
+    };
+  }
+
+  const platforms = await Promise.all(
+    metadata.platforms.map(async (p) => {
+      return platformNode('platforms', p);
+    })
+  );
+
   return omg(
     [
       str('name', metadata.name),
@@ -129,6 +192,7 @@ export async function metadataToOpenMetaGraph(
       num('createdAt', metadata.createdAt || new Date().getTime()),
       num('updatedAt', metadata.updatedAt || new Date().getTime()),
       await imageNode('primaryImage', metadata.primaryImage),
+      ...platforms,
     ],
     ['QmRcvWdCSQXdVdwLpsepqb8BAvfR9SJLDtk1LnrwjNnGvd']
   );

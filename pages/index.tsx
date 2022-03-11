@@ -13,35 +13,7 @@ import { BN } from '@project-serum/anchor';
 import * as splToken from '@solana/spl-token';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { useRouter } from 'next/router';
-
-function FormElement(props: {
-  children: any;
-  label: string;
-  required?: boolean;
-  className?: string;
-  hint?: string;
-}) {
-  return (
-    <label className={'flex flex-col  ' + props.className}>
-      <div className="text-sm flex bg-gray-50 dark:bg-gray-800 justify-between font-mono ">
-        <div className="pl-4 py-1">{props.label}</div>
-
-        {props.required && (
-          <div className="bg-gray-100 dark:bg-gray-700 border-b items-center border-l px-4 py-0.5 text-xs inline-flex">
-            required
-          </div>
-        )}
-      </div>
-
-      {props.hint && (
-        <div className="bg-gray-50 dark:bg-gray-800 text-muted text-sm px-4 pb-2">
-          {props.hint}
-        </div>
-      )}
-      <div className="">{props.children}</div>
-    </label>
-  );
-}
+import { FormElement } from '../components/FormElement';
 
 const Home: NextPage = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -103,7 +75,7 @@ const Home: NextPage = () => {
       price: new BN(price * 1000000000),
       currency: splToken.NATIVE_MINT,
       cashierSplit: bounty / 100,
-      isAvailable: false,
+      isAvailable: true,
       isConsumable: false,
       isRefundable: false,
       // Testnet charter
