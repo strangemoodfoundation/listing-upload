@@ -5,7 +5,6 @@ import { useStrangemoodListing } from '../components/store';
 import { Layout } from '../components/Layout';
 import { asImage } from '../lib/asImage';
 import { saveFile, saveJson } from '../lib/storage';
-import { metadataToOpenMetaGraph } from '../lib/metadata';
 import { useNotifications } from '../components/Notifications';
 import { grabStrangemood } from '../components/strangemood';
 import { initListing } from '@strangemood/strangemood';
@@ -14,6 +13,7 @@ import * as splToken from '@solana/spl-token';
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { useRouter } from 'next/router';
 import { FormElement } from '../components/FormElement';
+import { postListingMetadata } from '../lib/graphql';
 
 const Home: NextPage = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -34,10 +34,12 @@ const Home: NextPage = () => {
     store.set((data) => {
       let primaryImage = {
         ...(data.metadata.primaryImage || {}),
-        src: 'https://ipfs.io/ipfs/' + cid,
+        src: {
+          uri: 'https://ipfs.io/ipfs/' + cid,
+          contentType: file.type,
+        },
         width: img.width,
         height: img.height,
-        type: file.type,
       };
       return { ...data, metadata: { ...data.metadata, primaryImage } };
     });
@@ -61,8 +63,7 @@ const Home: NextPage = () => {
     setIsPublishing(true);
 
     // upload metadata to IPFS
-    const doc = await metadataToOpenMetaGraph(store.metadata, saveJson);
-    const cid = await saveJson(doc);
+    const { key } = await postListingMetadata(store.metadata);
 
     notify('info', 'Created metadata...');
 
@@ -71,7 +72,7 @@ const Home: NextPage = () => {
     const inx = await initListing({
       program,
       signer: program.provider.wallet.publicKey,
-      uri: 'ipfs://' + cid,
+      uri: 'ipfs://' + key,
       price: new BN(price * 1000000000),
       currency: splToken.NATIVE_MINT,
       cashierSplit: bounty / 100,

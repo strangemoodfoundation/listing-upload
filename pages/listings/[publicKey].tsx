@@ -1,16 +1,18 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import { Layout } from '../../components/Layout';
 import { grabStrangemood } from '../../components/strangemood';
-import { getListingMetadata, ListingMetadata } from '../../lib/graphql';
+import { getListingMetadata, postListingMetadata } from '../../lib/graphql';
 import { useEffect, useState } from 'react';
-import { Listing } from '@strangemood/strangemood';
+import { Listing, Strangemood } from '@strangemood/strangemood';
 import { useRouter } from 'next/router';
 import { FormElement } from '../../components/FormElement';
+import { StrangemoodMetadata } from '../../lib/metadata';
+import { setListingUri } from '@strangemood/strangemood';
 
 interface ListingData {
   account: Listing;
-  metadata: ListingMetadata;
+  metadata: StrangemoodMetadata;
   publicKey: string;
 }
 
@@ -19,7 +21,7 @@ function useListing(publicKey: string) {
   const wallet = useWallet();
   const [state, setState] = useState<ListingData>();
 
-  async function fetchListing(publicKey: string) {
+  async function fetchListing() {
     const program = await grabStrangemood(connection, wallet);
     const listing = await program.account.listing.fetch(
       new PublicKey(publicKey)
@@ -35,28 +37,108 @@ function useListing(publicKey: string) {
   }
 
   useEffect(() => {
-    fetchListing(publicKey)
+    fetchListing()
       .then((listing) => {
         setState(listing);
       })
       .catch(console.error);
   }, [publicKey]);
 
-  return state;
+  return { listing: state, refetch: fetchListing };
 }
 
 function ListingView() {
   const router = useRouter();
-  const listing = useListing(router.query.publicKey as string);
-
+  const { listing, refetch } = useListing(router.query.publicKey as string);
+  const wallet = useWallet();
+  const { connection } = useConnection();
   const [keyCID, setKeyCID] = useState('');
   const [fileCID, setFileCID] = useState('');
+  console.log(listing?.metadata);
 
-  function onPublish() {
-    return;
+  async function onPublish() {
+    if (!listing) throw new Error('Unexpectedly no listing');
+    const metadata = { ...listing?.metadata };
+
+    metadata.platforms = [
+      {
+        precrypts: [
+          {
+            key: {
+              uri: 'ipfs://' + keyCID,
+              contentType: 'application/octet-stream',
+            },
+            file: {
+              uri: 'ipfs://' + keyCID,
+              contentType: 'application/octet-stream',
+            },
+            proxy: 'https://api.precrypt.org',
+            rule: ['todo'],
+          },
+        ],
+        type: '*',
+      },
+    ];
+
+    const { key } = await postListingMetadata(metadata as any);
+
+    const program = await grabStrangemood(connection, wallet);
+    const { instructions } = await setListingUri({
+      program,
+      listing: new PublicKey(listing?.publicKey),
+      uri: 'ipfs://' + key,
+      signer: program.provider.wallet.publicKey,
+    });
+    let tx = new Transaction();
+    tx.add(...instructions);
+    await program.provider.send(tx);
+
+    refetch();
   }
 
   if (!listing) return null;
+
+  if (listing.metadata.platforms.length !== 0) {
+    return (
+      <div className="flex h-full w-full flex-1 flex-col max-w-6xl mx-auto  border-l border-r">
+        <div className="flex bg-gray-50 dark:bg-black p-4 flex flex-col border-b">
+          <h2 className="font-bold text-lg">{listing.metadata.name}</h2>
+          <p>{listing.metadata.description}</p>
+        </div>
+        <div>
+          <div className="flex flex-col">
+            {listing.metadata.platforms.map((platform) => (
+              <div
+                className="p-4 border-b flex flex-col"
+                key={'platform' + platform.type}
+              >
+                <div>{platform.type}</div>
+                <div>
+                  {platform.precrypts.map((precrypt) => (
+                    <div key={'precrypt' + precrypt.key + precrypt.file}>
+                      <div className="mb-2 ">
+                        <div className="text-sm text-muted">key</div>
+                        <div className="font-mono">{precrypt.key.uri}</div>
+                      </div>
+                      <div className="mb-2 ">
+                        <div className="text-sm text-muted">file</div>
+                        <div className="font-mono">{precrypt.file.uri}</div>
+                      </div>
+
+                      <div className="mb-2">
+                        <div className="text-sm text-muted">proxy</div>
+                        <div className="font-mono">{precrypt.proxy}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full w-full flex-1 flex-col max-w-6xl mx-auto  border-l border-r">
@@ -113,17 +195,16 @@ strangemood listing file upload -e ${listing.publicKey} game.zip
               className="px-4 py-2 flex w-full bg-foreground "
               placeholder="ex: 'QmRcvWdwSQXdVdwLpsepqb8BAvfR9SJLDtk1LnrwjNnGva'"
               autoFocus={true}
-              // value={store.metadata.name}
-              // onChange={(e) => store.put('name', e.target.value)}
+              value={keyCID}
+              onChange={(e) => setKeyCID(e.target.value)}
             />
           </FormElement>
           <FormElement label="File CID" className="border-b">
             <input
               className="px-4 py-2 flex w-full bg-foreground "
               placeholder="ex: 'QmTcvndwRQNdPdeNassptsb2Avbz2SnLUtk2LnwaaPbTaz'"
-              autoFocus={true}
-              // value={store.metadata.name}
-              // onChange={(e) => store.put('name', e.target.value)}
+              value={fileCID}
+              onChange={(e) => setFileCID(e.target.value)}
             />
           </FormElement>
 
@@ -133,14 +214,8 @@ strangemood listing file upload -e ${listing.publicKey} game.zip
               <div className="h-px w-full bg-black dark:bg-gray-500 w-4" />
               <button
                 className="btn secondary p-base disabled:opacity-20"
-                // disabled={
-                //   // !store.metadata ||
-                //   // !store.metadata.name ||
-                //   // uploadingImage ||
-                //   // isPublishing
-                // }
                 onClick={() => {
-                  // onPublish().catch(console.error);
+                  onPublish().catch(console.error);
                 }}
               >
                 Publish

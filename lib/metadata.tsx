@@ -27,15 +27,13 @@ export interface ImageNodeMetadata {
   alt: string;
   height: number;
   width: number;
-  type: string;
-  src: string;
+  src: FileMetadata;
 }
 
 export interface VideoNodeMetadata {
   height: number;
   width: number;
-  type: string;
-  src: string;
+  src: FileMetadata;
 }
 
 export interface SocialLinkNodeMetadata {
@@ -50,8 +48,15 @@ export interface CreatorNodeMetadata {
   primaryImage: ImageNodeMetadata;
 }
 
+export interface PrecryptNodeMetadata {
+  file: FileMetadata;
+  key: FileMetadata;
+  proxy: string;
+  rule: string[];
+}
+
 export interface PlatformNodeMetadata {
-  contents: FileNodeMetadata[];
+  precrypts: PrecryptNodeMetadata[];
   type: string;
 }
 
@@ -73,127 +78,4 @@ export interface StrangemoodMetadata {
   tags: string[];
   videos: VideoNodeMetadata[];
   platforms: PlatformNodeMetadata[];
-}
-
-// TODO: we should autogenerate a mutation for OMG documents
-// in the graphql
-export async function metadataToOpenMetaGraph(
-  metadata: StrangemoodMetadata,
-  upload: (data: OpenMetaGraph) => Promise<string>
-): Promise<OpenMetaGraph> {
-  function num(key: string, value: number): OpenMetaGraphNumberElement {
-    return {
-      object: 'number',
-      key,
-      value: value || 0,
-    };
-  }
-  function str(key: string, value: string): OpenMetaGraphStringElement {
-    return {
-      object: 'string',
-      key,
-      value: value || '',
-    };
-  }
-  function omg(
-    elements: OpenMetaGraphElement[],
-    schemas: string[]
-  ): OpenMetaGraph {
-    return {
-      object: 'omg',
-      version: '0.1.0',
-      elements,
-      schemas,
-    };
-  }
-
-  async function imageNode(
-    key: string,
-    value: ImageNodeMetadata
-  ): Promise<OpenMetaGraphNodeElement> {
-    if (!value) throw new Error('imageNode is not found');
-    const doc = omg(
-      [
-        str('contentType', value.type),
-        str('src', value.src),
-        str('alt', value.alt),
-        num('height', value.height),
-        num('width', value.width),
-      ],
-      [SCHEMAS.IMAGE]
-    );
-
-    const uri = await upload(doc);
-    return {
-      object: 'node',
-      key,
-      uri,
-    };
-  }
-
-  async function fileNode(
-    key: string,
-    value: FileNodeMetadata
-  ): Promise<OpenMetaGraphNodeElement> {
-    const doc = omg(
-      [str('name', value.name), str('src', value.src), str('type', value.type)],
-      [SCHEMAS.FILE]
-    );
-
-    return {
-      object: 'node',
-      key: key,
-      uri: await upload(doc),
-    };
-  }
-
-  async function platformNode(
-    key: string,
-    value: PlatformNodeMetadata
-  ): Promise<OpenMetaGraphNodeElement> {
-    if (!value) throw new Error('platformMetadata is not found');
-
-    const contents = (await Promise.all(
-      value.contents.map(async (c) => {
-        const doc = omg(
-          [str('name', c.name), str('src', c.src), str('type', c.type)],
-          [SCHEMAS.FILE]
-        );
-
-        const uri = await upload(doc);
-        return {
-          object: 'node',
-          key: 'contents',
-          uri,
-        };
-      })
-    )) as OpenMetaGraphNodeElement[];
-
-    const doc = omg([str('type', value.type), ...contents], [SCHEMAS.PLATFORM]);
-
-    const uri = await upload(doc);
-    return {
-      object: 'node',
-      key,
-      uri,
-    };
-  }
-
-  const platforms = await Promise.all(
-    metadata.platforms.map(async (p) => {
-      return platformNode('platforms', p);
-    })
-  );
-
-  return omg(
-    [
-      str('name', metadata.name),
-      str('description', metadata.description),
-      num('createdAt', metadata.createdAt || new Date().getTime()),
-      num('updatedAt', metadata.updatedAt || new Date().getTime()),
-      await imageNode('primaryImage', metadata.primaryImage),
-      ...platforms,
-    ],
-    ['QmRcvWdCSQXdVdwLpsepqb8BAvfR9SJLDtk1LnrwjNnGvd']
-  );
 }

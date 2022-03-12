@@ -19,7 +19,27 @@ interface StrangemoodMetadataStore {
 
 export const useStrangemoodListing = create<StrangemoodMetadataStore>(
   (set) => ({
-    metadata: {} as StrangemoodMetadata,
+    metadata: {
+      name: '',
+      description: '',
+      primaryImage: {
+        src: {
+          contentType: '',
+          uri: '',
+        },
+        height: 100,
+        width: 200,
+        alt: '',
+      },
+      createdAt: 0,
+      updatedAt: 0,
+      images: [],
+      links: [],
+      tags: [],
+      videos: [],
+      platforms: [],
+      creators: [],
+    },
     set: set,
     put: (key, value) =>
       set((state) => ({
