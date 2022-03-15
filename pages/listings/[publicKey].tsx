@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import { FormElement } from '../../components/FormElement';
 import { StrangemoodMetadata } from '../../lib/metadata';
 import { setListingUri } from '@strangemood/strangemood';
+import { GetNetworkFlag } from '../../components/WalletConnectionProvider';
 
 interface ListingData {
   account: Listing;
@@ -60,6 +61,14 @@ function ListingView() {
     if (!listing) throw new Error('Unexpectedly no listing');
     const metadata = { ...listing?.metadata };
 
+    // Get argument from url flag
+    let networkArguments = {
+      'mainnet-beta': ["mainnet"],
+      testnet: ["testnet"],
+    };
+    const flag = GetNetworkFlag();
+    const ruleArguments = networkArguments[flag];    
+
     metadata.platforms = [
       {
         precrypts: [
@@ -73,7 +82,8 @@ function ListingView() {
               contentType: 'application/octet-stream',
             },
             proxy: 'https://api.precrypt.org',
-            rule: ['todo'],
+            rule: "owns.spl_token",
+            arguments: ruleArguments,
           },
         ],
         type: '*',
@@ -83,6 +93,7 @@ function ListingView() {
     const { key } = await postListingMetadata(metadata as any);
 
     const program = await grabStrangemood(connection, wallet);
+    
     const { instructions } = await setListingUri({
       program,
       listing: new PublicKey(listing?.publicKey),

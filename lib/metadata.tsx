@@ -52,7 +52,8 @@ export interface PrecryptNodeMetadata {
   file: FileMetadata;
   key: FileMetadata;
   proxy: string;
-  rule: string[];
+  rule: string;
+  arguments: string[];
 }
 
 export interface PlatformNodeMetadata {

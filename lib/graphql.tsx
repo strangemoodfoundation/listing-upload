@@ -2,7 +2,7 @@ import { request, gql } from 'graphql-request';
 import { StrangemoodMetadata } from './metadata';
 
 const LISTING_METADATA_SCHEMA =
-  'bafkreigkik6doxa5keakoqkughknmmmpwy73fssn6yhmxebir2frubgq7q';
+  'bafkreibnw7e5kitzhkeufzka7c3fd3rkeaj43hj2j4fztcimyklxjt4wi4';
 
 export async function getListingMetadata(
   uri: string
@@ -64,6 +64,7 @@ export async function getListingMetadata(
               contentType
             }
             rule
+            arguments
             proxy
           }
         }
