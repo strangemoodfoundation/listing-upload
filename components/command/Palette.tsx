@@ -308,7 +308,7 @@ export default function Palette() {
     <Modal
       isOpen={shown}
       className={cn({
-        'modal rounded max-w-lg bg-gray-50 dark:bg-gray-900 z-50 border border-black flex-col':
+        'modal rounded max-w-lg bg-gray-50 dark:bg-gray-900 z-50 border border-black clear-border-color flex-col':
           true,
       })}
       overlayClassName="modal-overlay z-50"

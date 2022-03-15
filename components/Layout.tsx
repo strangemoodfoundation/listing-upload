@@ -102,7 +102,6 @@ export function Layout(props: { children: any }) {
                 src="/sun.svg"
                 className="h-4 w-4 mr-2 dark:bg-gray-500 bg-white"
               />
-              <div>{publicKey.toBase58()}</div>
             </div>
           )}
 
@@ -148,13 +147,14 @@ export function Layout(props: { children: any }) {
         Another Command
       </Command>
 
-      <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-sm justify-between">
+      <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-xs justify-between">
         <a
           href="https://github.com/strangemoodfoundation/studio"
           className="underline text-muted"
         >
           Edit this website
         </a>
+        <div className="text-muted">{publicKey.toBase58()}</div>
         <a
           href="https://discord.com/invite/Y2R3VBcRmA"
           className="underline text-muted"
