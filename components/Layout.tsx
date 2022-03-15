@@ -4,6 +4,7 @@ import {
   QuestionMarkCircleIcon,
   TerminalIcon,
   UserGroupIcon,
+  ViewListIcon,
 } from '@heroicons/react/solid';
 import { useNotifications } from '../components/Notifications';
 import Link from 'next/link';
@@ -13,9 +14,9 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 function IconLayout(props: { label: string; children: any; href: string }) {
   return (
     <Link href={props.href}>
-      <a className="flex flex-col px-4 py-2 dark:hover:bg-gray-700 hover:bg-blue-200 items-center justify-center">
+      <a className="flex flex-row items-center px-4 py-2 dark:hover:bg-gray-700 hover:bg-blue-50 border-b justify-center bg-white text-muted hover:text-gray-900 dark:hover-gray-50 dark:bg-gray-800 ">
         {props.children}
-        <div className="text-xs text-muted">{props.label}</div>
+        <div className="text-xs  ml-1">{props.label}</div>
       </a>
     </Link>
   );
@@ -93,11 +94,14 @@ export function Layout(props: { children: any }) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="border-b border-gray-normal dark:bg-gray-900 bg-gray-50">
+      <div className="border-b border-gray-normal dark:bg-gray-900 bg-gray-900 text-white">
         <div className="px-2 py-1 mx-auto flex flex-flex items-center justify-between">
           {publicKey && (
-            <div className="text-xs font-mono text-muted flex flex-col">
-              <div>logged in as</div>
+            <div className="text-xs font-mono flex">
+              <img
+                src="/sun.svg"
+                className="h-4 w-4 mr-2 dark:bg-gray-500 bg-white"
+              />
               <div>{publicKey.toBase58()}</div>
             </div>
           )}
@@ -113,11 +117,11 @@ export function Layout(props: { children: any }) {
         </div>
       </div>
       <div className="flex flex-row h-full">
-        {/* <div className="py-4 dark:bg-black bg-gray-50  border-r h-full">
-          <IconLayout label="people" href="#">
-            <UserGroupIcon className="h-4 w-4" />
+        <div className=" dark:bg-black bg-gray-100 border-r h-full">
+          <IconLayout label="listings" href="#">
+            <ViewListIcon className="h-4 w-4 " />
           </IconLayout>
-        </div> */}
+        </div>
         {props.children}
       </div>
       <Command

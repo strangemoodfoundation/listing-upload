@@ -1,259 +1,144 @@
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import type { NextPage } from 'next';
-import { useState } from 'react';
-import { useStrangemoodListing } from '../components/store';
 import { Layout } from '../components/Layout';
-import { asImage } from '../lib/asImage';
-import { saveFile, saveJson } from '../lib/storage';
-import { useNotifications } from '../components/Notifications';
 import { grabStrangemood } from '../components/strangemood';
-import { initListing } from '@strangemood/strangemood';
-import { BN } from '@project-serum/anchor';
-import * as splToken from '@solana/spl-token';
-import { PublicKey, Transaction } from '@solana/web3.js';
-import { useRouter } from 'next/router';
-import { FormElement } from '../components/FormElement';
-import { postListingMetadata } from '../lib/graphql';
+import { useEffect, useState } from 'react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { Listing } from '@strangemood/strangemood';
+import { PublicKey } from '@solana/web3.js';
+import { getListingMetadata } from '../lib/graphql';
+import { StrangemoodMetadata } from '../lib/metadata';
+import Link from 'next/link';
+import cn from 'classnames';
+import { PlusCircleIcon } from '@heroicons/react/solid';
 
-const Home: NextPage = () => {
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const notify = useNotifications();
-  const store = useStrangemoodListing();
-  const [price, setPrice] = useState<number>(0.0001);
-  const [bounty, setBounty] = useState<number>(10);
-
-  async function onSelectImage(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files) return;
-    const file = e.target.files[0];
-    if (!file || !file.name) return;
-
-    setUploadingImage(true);
-    const cid = await saveFile(file);
-    const img = await asImage(file);
-
-    store.set((data) => {
-      let primaryImage = {
-        ...(data.metadata.primaryImage || {}),
-        src: {
-          uri: 'https://ipfs.io/ipfs/' + cid,
-          contentType: file.type,
-        },
-        width: img.width,
-        height: img.height,
-      };
-      return { ...data, metadata: { ...data.metadata, primaryImage } };
-    });
-    setUploadingImage(false);
-
-    notify('success', 'Image uploaded!');
-  }
-
-  const [isPublishing, setIsPublishing] = useState(false);
+function useListings() {
   const wallet = useWallet();
   const { connection } = useConnection();
-  const router = useRouter();
 
-  async function onPublish() {
-    if (!store.metadata || !store.metadata.primaryImage) {
-      notify('error', 'Please select an image');
-      console.log(store.metadata);
-      return;
+  const [listings, setListings] = useState<
+    { account: Listing; publicKey: PublicKey }[]
+  >([]);
+
+  useEffect(() => {
+    async function fetchListings() {
+      if (!wallet || !wallet.publicKey || !connection) return [];
+      const program = await grabStrangemood(connection, wallet);
+
+      const listings = await program.account.listing.all([
+        {
+          memcmp: {
+            offset: 8 + 1 + 1 + 1 + 32, // after tag + bool, bool, bool, pubkey
+            bytes: wallet.publicKey.toBase58(),
+          },
+        },
+      ]);
+
+      return listings;
     }
-    notify('info', 'Uploading...');
-    setIsPublishing(true);
 
-    // upload metadata to IPFS
-    const { key } = await postListingMetadata(store.metadata);
-
-    notify('info', 'Created metadata...');
-
-    // Create a new listing
-    const program = await grabStrangemood(connection, wallet);
-    const inx = await initListing({
-      program,
-      signer: program.provider.wallet.publicKey,
-      uri: 'ipfs://' + key,
-      price: new BN(price * 1000000000),
-      currency: splToken.NATIVE_MINT,
-      cashierSplit: bounty / 100,
-      isAvailable: true,
-      isConsumable: false,
-      isRefundable: false,
-      // Testnet charter
-      charter: new PublicKey('8iKjJx3hUNB2mtzMXnoghYiGy73GZXUW8vu8h1ASQDTR'),
+    fetchListings().then((listings) => {
+      setListings(listings);
     });
-    let tx = new Transaction();
-    tx.add(...inx.instructions);
-    await program.provider.send(tx, inx.signers);
+  }, []);
 
-    setIsPublishing(false);
-    router.push('/listings/' + inx.listing.toBase58());
-    notify('info', inx.listing.toBase58());
-  }
+  return listings;
+}
 
-  return (
-    <Layout>
-      <div className="dark:bg-gray-900 bg-gray-50 flex flex-col w-full pb-12">
-        <div className="flex flex-col flex-1 max-w-4xl pt-12  mx-auto w-full">
-          <h1 className="mb-1 font-bold text-lg dark:text-gray-200 pt-2 px-4">
-            Create a new game for sale
-          </h1>
-          <p className="px-4 mb-4 text-muted">
-            Last saved {new Date().toLocaleTimeString()}
-          </p>
-          <div className="w-full flex lg:border-l lg:border-r border-t border-b flex-col w-full  bg-background">
-            <div className="px-4 py-8 border-b bg-gray-100 dark:bg-black">
-              <h2 className=" font-bold text-lg ">Basics</h2>
-            </div>
-            <FormElement label="title" required className="">
-              <input
-                className="px-4 py-2 flex w-full bg-foreground "
-                placeholder="ex: 'Form Field Simulator 2'"
-                autoFocus={true}
-                value={store.metadata.name}
-                onChange={(e) => store.put('name', e.target.value)}
-                disabled={isPublishing}
-              />
-            </FormElement>
-            <FormElement label="description" className="">
-              <textarea
-                className="px-4 py-2 flex w-full bg-foreground border-0"
-                placeholder="A short paragraph that appears on stores"
-                autoFocus={true}
-                value={store.metadata.description}
-                onChange={(e) => store.put('description', e.target.value)}
-                disabled={isPublishing}
-              />
-            </FormElement>
+function ListingView({
+  listing,
+}: {
+  listing: { account: Listing; publicKey: PublicKey };
+}) {
+  const [metadata, setMetadata] = useState<StrangemoodMetadata>();
+  const [err, setError] = useState();
 
-            <div className="flex">
-              <FormElement
-                label="primary image"
-                hint="A cover image or thumbnail that appears in stores, social media embeds, and so on."
-              >
-                <div className="p-4 bg-foreground flex justify-between">
-                  <input
-                    type={'file'}
-                    accept={'image/png, image/gif, image/jpeg'}
-                    onChange={(e) => onSelectImage(e).catch(console.error)}
-                    disabled={uploadingImage || isPublishing}
-                  />
+  useEffect(() => {
+    async function load() {
+      const metadata = await getListingMetadata(listing.account.uri);
+      setMetadata(metadata);
+    }
+    load().catch((err) => {
+      setError(err);
+    });
+  }, [listing.account.uri]);
 
-                  {uploadingImage && (
-                    <div className="text-muted animate-pulse">Uploading...</div>
-                  )}
-                </div>
-              </FormElement>
-              <FormElement
-                label="alt text"
-                className="bg-white dark:bg-gray-900"
-                hint="The screen-reader accessible text for the primary image."
-              >
-                <input
-                  className="px-4 py-2 flex-1  flex w-full bg-foreground"
-                  placeholder={`ex: "${store.metadata.name || 'title'}"`}
-                  autoFocus={true}
-                  disabled={isPublishing}
-                  value={store.metadata.primaryImage?.alt}
-                  onChange={(e) =>
-                    store.set((data) => {
-                      let primaryImage = {
-                        ...(data.metadata.primaryImage || {}),
-                        alt: e.target.value,
-                      };
-                      return {
-                        ...data,
-                        metadata: { ...data.metadata, primaryImage },
-                      };
-                    })
-                  }
-                />
-              </FormElement>
-            </div>
-
-            <div className="px-4 py-8 border-b border-t bg-gray-100 dark:bg-black">
-              <h2 className=" font-bold text-lg ">Pricing</h2>
-            </div>
-            <div className="flex">
-              <FormElement
-                className="flex-1"
-                label="price"
-                hint="You can change this later if you'd like."
-              >
-                <input
-                  className="px-4 py-2 flex w-full bg-foreground h-10"
-                  placeholder={`10.00`}
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(parseFloat(e.target.value))}
-                  autoFocus={true}
-                  disabled={isPublishing}
-                />
-              </FormElement>
-              <FormElement label="Unit" hint="Currency">
-                <select
-                  id="currency"
-                  className="flex h-full p-2 w-full h-10 border-l  dark:bg-gray-900"
-                >
-                  <option className="w-full" value={'SOL'}>
-                    SOL
-                  </option>
-                </select>
-              </FormElement>
-            </div>
-
-            <div className="flex">
-              <FormElement
-                className="flex-1 "
-                label="% of sale shared with a marketplace"
-                hint="The amount of each sale that goes to a marketplace that begins the sale. Setting a higher number may make you appear in more stores, and potentially earn more sales."
-              >
-                <div className="px-4 py-2 flex items-center">
-                  <div className="font-mono text-sm w-12">{bounty} %</div>
-
-                  <input
-                    className="ml-4 inline-flex w-full bg-foreground transition-all"
-                    placeholder={`ex: "${store.metadata.name || 'title'}"`}
-                    autoFocus={true}
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={bounty}
-                    disabled={isPublishing}
-                    onChange={(e) => setBounty(parseFloat(e.target.value))}
-                  />
-                </div>
-              </FormElement>
-            </div>
-          </div>
-          <div className="pr-4 pt-4 flex justify-end rounded items-center">
-            <div className="w-full flex items-center">
-              <div className="h-px flex-1 bg-black dark:bg-gray-500" />
-              <div className="font-mono text-sm inline px-1">
-                <div className="text-green-600 inline">$0.30</div> network fee
-                to publish
-              </div>
-              <div className="h-px w-full bg-black dark:bg-gray-500 w-4" />
-              <button
-                className="btn secondary p-base disabled:opacity-20"
-                disabled={
-                  !store.metadata ||
-                  !store.metadata.name ||
-                  uploadingImage ||
-                  isPublishing
-                }
-                onClick={() => {
-                  onPublish().catch(console.error);
-                }}
-              >
-                Publish
-              </button>
+  if (err) {
+    return (
+      <div className="px-2 h-24 flex flex-col justify-center py-2 border-b">
+        <div className="px-2  py-2 bg-red-50 dark:bg-gray-800 dark:border dark:border-red-500 rounded flex items-center ">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4 mr-2 text-red-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <div>
+            This listing can't be loaded. It might be created with an old
+            version of Strangemood.
+            <div className="text-sm text-muted">
+              {listing.publicKey.toBase58()}
             </div>
           </div>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <Link href={`/listings/${listing.publicKey.toBase58()}`}>
+      <a
+        className={cn({
+          'px-2 py-4 border-b flex flex-col hover:bg-blue-50 h-18 flex flex-col justify-center transition-all':
+            true,
+          'opacity-100': !!metadata,
+          'opacity-0': !metadata,
+        })}
+      >
+        {metadata && <div className="font-bold">{metadata.name}</div>}
+        <div className="text-xs text-muted">{listing.publicKey.toBase58()}</div>
+      </a>
+    </Link>
+  );
+}
+
+function ListingList() {
+  const listings = useListings();
+
+  return (
+    <div className="flex flex-col w-full">
+      <div className="px-2 py-2 w-full bg-gray-50 dark:bg-black border-b flex items-center justify-between">
+        <div>Listings</div>
+        <div>
+          <Link href="/listings/new">
+            <button className="border-b-2 border border-black clear-border-color bg-white rounded px-2 py-0.5 text-sm flex items-center hover:bg-blue-50 hover:border-blue-700 hover:text-blue-600 active:border-b-1">
+              New
+              <PlusCircleIcon className="h-4 ml-1" />
+            </button>
+          </Link>
+        </div>
+      </div>
+      <div className="flex flex-col pb-12 h-full">
+        {listings.map((l) => (
+          <ListingView listing={l} key={'l' + l.publicKey.toBase58()} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function IndexPage() {
+  return (
+    <Layout>
+      <div className="  mx-auto w-full flex">
+        <ListingList />
+      </div>
     </Layout>
   );
-};
-
-export default Home;
+}
