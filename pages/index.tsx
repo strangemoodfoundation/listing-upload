@@ -8,11 +8,16 @@ import { getListingMetadata } from '../lib/graphql';
 import { StrangemoodMetadata } from '../lib/metadata';
 import Link from 'next/link';
 import cn from 'classnames';
-import { PlusCircleIcon } from '@heroicons/react/solid';
+import {
+  ArrowCircleRightIcon,
+  ArrowRightIcon,
+  PlusCircleIcon,
+} from '@heroicons/react/solid';
 
 function useListings() {
   const wallet = useWallet();
   const { connection } = useConnection();
+  const [loading, setLoading] = useState(true);
 
   const [listings, setListings] = useState<
     { account: Listing; publicKey: PublicKey }[]
@@ -37,10 +42,11 @@ function useListings() {
 
     fetchListings().then((listings) => {
       setListings(listings);
+      setLoading(false);
     });
   }, []);
 
-  return listings;
+  return { listings, loading };
 }
 
 function ListingView({
@@ -109,15 +115,48 @@ function ListingView({
 }
 
 function ListingList() {
-  const listings = useListings();
+  const { listings, loading } = useListings();
+
+  const isNew = (!loading && listings.length === 0) || true;
 
   return (
     <div className="flex flex-col w-full">
       <div className="px-2 py-2 w-full bg-gray-50 dark:bg-black border-b flex items-center justify-between">
-        <div>Listings</div>
+        {isNew && (
+          <div className="w-full flex items-center font-mono text-xs inline">
+            <div className="font-mono inline">oh</div>
+            <div className="h-px w-12 bg-black"></div>
+            <div className="font-mono inline">hello</div>
+            <div className="h-px w-full bg-black"></div>
+
+            <div className="inline px-1">you</div>
+            <div className="h-px w-12 bg-black"></div>
+            <div className="inline px-1">should</div>
+            <div className="h-px w-12 bg-black"></div>
+            <div className="inline px-1">click</div>
+            <div className="h-px w-12 bg-black"></div>
+            <div className="inline px-1">on</div>
+            <div className="h-px w-12 bg-black"></div>
+            <div className="inline px-1">this:</div>
+            <div className="h-px w-12 bg-black"></div>
+          </div>
+        )}
+
+        {!isNew && (
+          <div className="w-full flex items-center font-mono text-xs">
+            listings
+          </div>
+        )}
+
         <div>
           <Link href="/listings/new">
-            <button className="border-b-2 border border-black clear-border-color bg-white rounded px-2 py-0.5 text-sm flex items-center hover:bg-blue-50 hover:border-blue-700 hover:text-blue-600 active:border-b-1">
+            <button
+              className={cn({
+                'border-b-2 border border-black clear-border-color bg-white rounded px-2 py-0.5 text-sm flex items-center hover:bg-blue-50 hover:border-blue-700 hover:text-blue-600 active:border-b-1':
+                  true,
+                'animate-pulse': isNew,
+              })}
+            >
               New
               <PlusCircleIcon className="h-4 ml-1" />
             </button>
@@ -125,9 +164,29 @@ function ListingList() {
         </div>
       </div>
       <div className="flex flex-col pb-12 h-full">
-        {listings.map((l) => (
-          <ListingView listing={l} key={'l' + l.publicKey.toBase58()} />
-        ))}
+        {!isNew &&
+          listings.map((l) => (
+            <ListingView listing={l} key={'l' + l.publicKey.toBase58()} />
+          ))}
+        {isNew && (
+          <article className="pt-4 h-full flex flex-col px-4 max-w-3xl mx-auto justify-center">
+            <h1 className="font-bold text-xl pt-4 mb-2">
+              Welcome to a new type of game store.
+            </h1>
+            <p className="pb-8">
+              When you publish a game here, it gets listed on a network of other
+              stores that implement the Strangemood protocol.
+            </p>
+
+            <div className="flex">
+              <Link href="/listings/new">
+                <button className="border flex border-b-2 px-4 py-2 border-black clear-border-color rounded-sm">
+                  Create a new game
+                </button>
+              </Link>
+            </div>
+          </article>
+        )}
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import { useNotifications } from '../components/Notifications';
 import Link from 'next/link';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { useRouter } from 'next/router';
 
 function IconLayout(props: { label: string; children: any; href: string }) {
   return (
@@ -87,6 +88,7 @@ function WalletPage() {
 export function Layout(props: { children: any }) {
   const notify = useNotifications();
   const { publicKey, signMessage } = useWallet();
+  const router = useRouter();
 
   if (!publicKey) {
     return <WalletPage />;
@@ -126,25 +128,13 @@ export function Layout(props: { children: any }) {
       <Command
         id="my-cmd"
         onExecute={() => {
-          console.log('hi');
-          notify('info', 'hello I am a notification');
+          router.push('https://discord.gg/Y2R3VBcRmA');
         }}
-        search={['example command']}
+        search={['discord', 'support', 'help', 'faq', 'docs']}
         className="p-base justify-between flex w-full items-center"
       >
-        <div>hi</div>
+        <div>Get support</div>
         <HeartIcon className="text-blue-500 h-4 w-4" />
-      </Command>
-
-      <Command
-        id="another-cmd"
-        onExecute={() => {
-          console.log('hi');
-        }}
-        search={['another command']}
-        className="p-base"
-      >
-        Another Command
       </Command>
 
       <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-xs justify-between">
