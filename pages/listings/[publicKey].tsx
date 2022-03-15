@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { FormElement } from '../../components/FormElement';
 import { StrangemoodMetadata } from '../../lib/metadata';
 import { setListingUri } from '@strangemood/strangemood';
-import { GetNetworkFlag } from '../../components/WalletConnectionProvider';
+import { useNetworkFlag } from '../../components/WalletConnectionProvider';
 
 interface ListingData {
   account: Listing;
@@ -53,6 +53,7 @@ function ListingView() {
   const { listing, refetch } = useListing(router.query.publicKey as string);
   const wallet = useWallet();
   const { connection } = useConnection();
+  const networkFlag = useNetworkFlag();
   const [keyCID, setKeyCID] = useState('');
   const [fileCID, setFileCID] = useState('');
   console.log(listing?.metadata);
@@ -66,8 +67,7 @@ function ListingView() {
       'mainnet-beta': ["mainnet"],
       testnet: ["testnet"],
     };
-    const flag = GetNetworkFlag();
-    const ruleArguments = networkArguments[flag];    
+    const ruleArguments = networkArguments[networkFlag];    
 
     metadata.platforms = [
       {

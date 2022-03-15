@@ -21,7 +21,7 @@ let networks = {
   testnet: WalletAdapterNetwork.Testnet,
 };
 
-export function GetNetworkFlag(): "testnet" | "mainnet-beta" {
+export function useNetworkFlag(): "testnet" | "mainnet-beta" {
   const flag = useFlag('network', 'testnet');
   return flag;
 }
@@ -29,7 +29,7 @@ export function GetNetworkFlag(): "testnet" | "mainnet-beta" {
 export const WalletConnectionProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const flag = GetNetworkFlag();
+  const flag = useNetworkFlag();
   const network = networks[flag];
 
   // You can also provide a custom RPC endpoint

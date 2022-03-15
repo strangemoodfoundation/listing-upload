@@ -2,7 +2,7 @@ import { request, gql } from 'graphql-request';
 import { StrangemoodMetadata } from './metadata';
 
 const LISTING_METADATA_SCHEMA =
-  'bafkreibnw7e5kitzhkeufzka7c3fd3rkeaj43hj2j4fztcimyklxjt4wi4';
+  'bafkreiczgupdf5ha7jt5oqn77koptvclt7edfzriu34ozgeqnasmhyio6a';
 
 export async function getListingMetadata(
   uri: string
@@ -91,6 +91,8 @@ export async function postListingMetadata(doc: StrangemoodMetadata) {
       }
     }
   `;
+
+  console.log(doc);
 
   const data = (await request(
     `https://www.openmetagraph.com/api/graphql?schema=${LISTING_METADATA_SCHEMA}`,
