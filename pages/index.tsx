@@ -155,7 +155,7 @@ function ListingList() {
           <Link href="/new">
             <button
               className={cn({
-                'border-b-2 border border-black clear-border-color bg-white rounded px-2 py-0.5 text-sm flex items-center hover:bg-blue-50 hover:border-blue-700 hover:text-blue-600 active:border-b-1':
+                'border-b-2 border border-black clear-border-color bg-white dark:bg-gray-700 dark:border-gray-500 rounded px-2 py-0.5 text-sm flex items-center hover:bg-blue-50 hover:border-blue-700 hover:text-blue-600 active:border-b-1':
                   true,
                 'animate-pulse': isNew,
               })}
