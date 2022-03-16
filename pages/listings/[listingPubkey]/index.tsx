@@ -10,6 +10,7 @@ import { StrangemoodMetadata } from '../../../lib/metadata';
 import { setListingUri } from '@strangemood/strangemood';
 import { useNetworkFlag } from '../../../components/WalletConnectionProvider';
 import { useListing } from '../../../components/useListing';
+import { useNotifications } from '../../../components/Notifications';
 
 function ListingView() {
   const router = useRouter();
@@ -19,6 +20,7 @@ function ListingView() {
   const networkFlag = useNetworkFlag();
   const [keyCID, setKeyCID] = useState('');
   const [fileCID, setFileCID] = useState('');
+  const notify = useNotifications();
 
   async function onPublish() {
     if (!listing) throw new Error('Unexpectedly no listing');
@@ -68,6 +70,7 @@ function ListingView() {
 
     setTimeout(async () => {
       await refetch();
+      notify('success', 'Saved.');
     }, 100);
   }
 
