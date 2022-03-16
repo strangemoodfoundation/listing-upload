@@ -1,8 +1,8 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import type { NextPage } from 'next';
 import { useState } from 'react';
-import { useStrangemoodListing } from '../components/store';
-import { Layout } from '../components/Layout';
+import { useCreateListingStore } from '../components/stores/useCreateListingStore';
+import { MainLayout } from '../components/Layout';
 import { asImage } from '../lib/asImage';
 import { saveFile, saveJson } from '../lib/storage';
 import { useNotifications } from '../components/Notifications';
@@ -19,7 +19,7 @@ import Link from 'next/link';
 const Home: NextPage = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const notify = useNotifications();
-  const store = useStrangemoodListing();
+  const store = useCreateListingStore();
   const [price, setPrice] = useState<number>(0.0001);
   const [bounty, setBounty] = useState<number>(10);
 
@@ -93,7 +93,7 @@ const Home: NextPage = () => {
   }
 
   return (
-    <Layout>
+    <MainLayout>
       <div className="dark:bg-gray-900 bg-gray-50 flex flex-col w-full pb-12">
         <div className="px-4 pt-2 text-sm  ">
           <Link href="/">
@@ -256,7 +256,7 @@ const Home: NextPage = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </MainLayout>
   );
 };
 

@@ -86,7 +86,91 @@ function WalletPage() {
   );
 }
 
-export function Layout(props: { children: any }) {
+export function MainLayout(props: { children: any }) {
+  const notify = useNotifications();
+  const { publicKey, signMessage } = useWallet();
+  const router = useRouter();
+
+  if (!publicKey) {
+    return <WalletPage />;
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="border-b border-gray-normal dark:bg-gray-900 bg-gray-900 text-white">
+        <div className="px-2 py-1 mx-auto flex flex-flex items-center justify-between">
+          {publicKey && (
+            <div className="text-xs font-mono flex">
+              <img
+                src="/sun.svg"
+                className="h-4 w-4 mr-2 dark:bg-gray-500 bg-white"
+              />
+            </div>
+          )}
+
+          <button
+            className="p-1 hover:opacity-70"
+            onClick={() => {
+              notify('info', 'Press ctrl-k or cmd-k!');
+            }}
+          >
+            <TerminalIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+      <div className="flex flex-row h-full">
+        <div className=" dark:bg-black bg-gray-100 border-r h-full">
+          <IconLayout label="listings" href="/">
+            <ViewListIcon className="h-4 w-4 " />
+          </IconLayout>
+        </div>
+        {props.children}
+      </div>
+      <Command
+        id="home"
+        onExecute={() => {
+          router.push('/');
+        }}
+        search={['all', 'home', 'go home', 'go to home']}
+        className="p-base justify-between flex w-full items-center"
+        category="Navigation"
+      >
+        <div>Go home</div>
+        <HomeIcon className="text-muted h-4 w-4" />
+      </Command>
+      <Command
+        id="help"
+        onExecute={() => {
+          router.push('https://discord.gg/Y2R3VBcRmA');
+        }}
+        search={['discord', 'support', 'help', 'faq', 'docs']}
+        className="p-base justify-between flex w-full items-center"
+        category="Support"
+      >
+        <div>Discord</div>
+        <HeartIcon className="text-muted h-4 w-4" />
+      </Command>
+
+      <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-xs justify-between">
+        <a
+          href="https://github.com/strangemoodfoundation/studio"
+          className="underline text-muted"
+        >
+          Edit this website
+        </a>
+        <div className="text-muted">{publicKey.toBase58()}</div>
+        <a
+          href="https://discord.com/invite/Y2R3VBcRmA"
+          className="underline text-muted"
+        >
+          Discord
+        </a>
+      </div>
+    </div>
+  );
+}
+
+export function ListingLayout(props: { children: any }) {
   const notify = useNotifications();
   const { publicKey, signMessage } = useWallet();
   const router = useRouter();

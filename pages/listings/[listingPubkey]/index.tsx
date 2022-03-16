@@ -1,62 +1,24 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Transaction } from '@solana/web3.js';
-import { Layout } from '../../components/Layout';
-import { grabStrangemood } from '../../components/strangemood';
-import { getListingMetadata, postListingMetadata } from '../../lib/graphql';
+import { MainLayout } from '../../../components/Layout';
+import { grabStrangemood } from '../../../components/strangemood';
+import { getListingMetadata, postListingMetadata } from '../../../lib/graphql';
 import { useEffect, useState } from 'react';
-import { Listing, Strangemood } from '@strangemood/strangemood';
 import { useRouter } from 'next/router';
-import { FormElement } from '../../components/FormElement';
-import { StrangemoodMetadata } from '../../lib/metadata';
+import { FormElement } from '../../../components/FormElement';
+import { StrangemoodMetadata } from '../../../lib/metadata';
 import { setListingUri } from '@strangemood/strangemood';
-import { useNetworkFlag } from '../../components/WalletConnectionProvider';
-
-interface ListingData {
-  account: Listing;
-  metadata: StrangemoodMetadata;
-  publicKey: string;
-}
-
-function useListing(publicKey: string) {
-  const { connection } = useConnection();
-  const wallet = useWallet();
-  const [state, setState] = useState<ListingData>();
-
-  async function fetchListing() {
-    const program = await grabStrangemood(connection, wallet);
-    const listing = await program.account.listing.fetch(
-      new PublicKey(publicKey)
-    );
-
-    const metadata = await getListingMetadata(listing.uri);
-
-    return {
-      account: listing,
-      metadata: metadata,
-      publicKey: publicKey,
-    } as ListingData;
-  }
-
-  useEffect(() => {
-    fetchListing()
-      .then((listing) => {
-        setState(listing);
-      })
-      .catch(console.error);
-  }, [publicKey]);
-
-  return { listing: state, refetch: fetchListing };
-}
+import { useNetworkFlag } from '../../../components/WalletConnectionProvider';
+import { useListing } from '../../../components/useListing';
 
 function ListingView() {
   const router = useRouter();
-  const { listing, refetch } = useListing(router.query.publicKey as string);
+  const { listing, refetch } = useListing(router.query.listingPubkey as string);
   const wallet = useWallet();
   const { connection } = useConnection();
   const networkFlag = useNetworkFlag();
   const [keyCID, setKeyCID] = useState('');
   const [fileCID, setFileCID] = useState('');
-  console.log(listing?.metadata);
 
   async function onPublish() {
     if (!listing) throw new Error('Unexpectedly no listing');
@@ -64,10 +26,10 @@ function ListingView() {
 
     // Get argument from url flag
     let networkArguments = {
-      'mainnet-beta': ["mainnet"],
-      testnet: ["testnet"],
+      'mainnet-beta': ['mainnet'],
+      testnet: ['testnet'],
     };
-    const ruleArguments = networkArguments[networkFlag];    
+    const ruleArguments = networkArguments[networkFlag];
 
     metadata.platforms = [
       {
@@ -82,7 +44,7 @@ function ListingView() {
               contentType: 'application/octet-stream',
             },
             proxy: 'https://api.precrypt.org',
-            rule: "owns.spl_token",
+            rule: 'owns.spl_token',
             arguments: ruleArguments,
           },
         ],
@@ -93,7 +55,7 @@ function ListingView() {
     const { key } = await postListingMetadata(metadata as any);
 
     const program = await grabStrangemood(connection, wallet);
-    
+
     const { instructions } = await setListingUri({
       program,
       listing: new PublicKey(listing?.publicKey),
@@ -244,5 +206,5 @@ export default function Page() {
   const connection = useConnection();
   const wallet = useWallet();
 
-  return <Layout>{connection && wallet && <ListingView />}</Layout>;
+  return <MainLayout>{connection && wallet && <ListingView />}</MainLayout>;
 }

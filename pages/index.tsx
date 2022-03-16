@@ -1,4 +1,4 @@
-import { Layout } from '../components/Layout';
+import { MainLayout } from '../components/Layout';
 import { grabStrangemood } from '../components/strangemood';
 import { useEffect, useState } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
@@ -208,10 +208,10 @@ function ListingList() {
 
 export default function IndexPage() {
   return (
-    <Layout>
+    <MainLayout>
       <div className="  mx-auto w-full flex">
         <ListingList />
       </div>
-    </Layout>
+    </MainLayout>
   );
 }

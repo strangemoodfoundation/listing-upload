@@ -1,7 +1,7 @@
 import create, { SetState } from 'zustand';
 import { persist } from 'zustand/middleware';
 import lodashSet from 'lodash/set';
-import { StrangemoodMetadata } from '../lib/metadata';
+import { StrangemoodMetadata } from '../../lib/metadata';
 
 type SetStrangemoodState = SetState<StrangemoodMetadataStore>;
 type PutStrangemoodState<K extends keyof StrangemoodMetadata> = (
@@ -17,7 +17,7 @@ interface StrangemoodMetadataStore {
   metadata: StrangemoodMetadata;
 }
 
-export const useStrangemoodListing = create<StrangemoodMetadataStore>(
+export const useCreateListingStore = create<StrangemoodMetadataStore>(
   (set) => ({
     metadata: {
       name: '',
