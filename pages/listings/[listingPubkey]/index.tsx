@@ -1,6 +1,6 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Transaction } from '@solana/web3.js';
-import { MainLayout } from '../../../components/Layout';
+import { ListingLayout, MainLayout } from '../../../components/Layout';
 import { grabStrangemood } from '../../../components/strangemood';
 import { getListingMetadata, postListingMetadata } from '../../../lib/graphql';
 import { useEffect, useState } from 'react';
@@ -69,11 +69,11 @@ function ListingView() {
     refetch();
   }
 
-  if (!listing) return null;
+  if (!listing || !listing.publicKey) return null;
 
   if (listing.metadata.platforms.length !== 0) {
     return (
-      <div className="flex h-full w-full flex-1 flex-col max-w-6xl mx-auto  border-l border-r">
+      <div className="flex h-full w-full flex-1 flex-col max-w-3xl mx-auto  border-l border-r">
         <div className="flex bg-gray-50 dark:bg-black p-4 flex flex-col border-b">
           <h2 className="font-bold text-lg">{listing.metadata.name}</h2>
           <p>{listing.metadata.description}</p>
@@ -114,7 +114,7 @@ function ListingView() {
   }
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col max-w-6xl mx-auto  border-l border-r">
+    <div className="flex h-full flex-col max-w-3xl w-full mx-auto border-l border-r">
       <div className="flex bg-gray-50 dark:bg-black p-4 flex flex-col border-b">
         <h2 className="font-bold text-lg">{listing.metadata.name}</h2>
         <p>{listing.metadata.description}</p>
@@ -143,7 +143,7 @@ function ListingView() {
             </a>
             .
           </div>
-          <pre className="bg-gray-100 text-sm dark:bg-black shadow-inner border px-4 py-2 mb-8">
+          <pre className="flex max-w-2xl bg-gray-100 overflow-x-auto text-sm dark:bg-black shadow-inner border px-4 py-2 mb-8">
             {`
 npm install -g precrypt;
 npm install -g @strangemood/cli;
@@ -152,7 +152,7 @@ npm install -g @strangemood/cli;
           <div className="mb-2">
             Upload a file, and it will print out two IPFS "CID"s.
           </div>
-          <pre className="bg-gray-100 text-sm dark:bg-black shadow-inner border px-4 py-2 mb-8">
+          <pre className="flex max-w-2xl bg-gray-100 overflow-x-auto text-sm dark:bg-black shadow-inner border px-4 py-2 mb-8">
             {`
 strangemood listing file upload -e ${listing.publicKey} game.zip
         `.trim()}
@@ -184,7 +184,6 @@ strangemood listing file upload -e ${listing.publicKey} game.zip
           <div className="pr-4 py-4 pb-12 flex justify-end rounded items-center">
             <div className="w-full flex items-center">
               <div className="h-px flex-1 bg-black dark:bg-gray-500" />
-              <div className="h-px w-full bg-black dark:bg-gray-500 w-4" />
               <button
                 className="btn secondary p-base disabled:opacity-20"
                 onClick={() => {
@@ -206,5 +205,7 @@ export default function Page() {
   const connection = useConnection();
   const wallet = useWallet();
 
-  return <MainLayout>{connection && wallet && <ListingView />}</MainLayout>;
+  return (
+    <ListingLayout>{connection && wallet && <ListingView />}</ListingLayout>
+  );
 }

@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useRouter } from 'next/router';
+import { useListing } from './useListing';
 
 function IconLayout(props: { label: string; children: any; href: string }) {
   return (
@@ -175,6 +176,8 @@ export function ListingLayout(props: { children: any }) {
   const { publicKey, signMessage } = useWallet();
   const router = useRouter();
 
+  const { listing } = useListing(router.query.listingPubkey as any);
+
   if (!publicKey) {
     return <WalletPage />;
   }
@@ -189,6 +192,7 @@ export function ListingLayout(props: { children: any }) {
                 src="/sun.svg"
                 className="h-4 w-4 mr-2 dark:bg-gray-500 bg-white"
               />
+              <div>{listing && listing.publicKey}</div>
             </div>
           )}
 
