@@ -177,11 +177,11 @@ export function MainLayout(props: { children: any }) {
         </div>
       </div>
       <div className="flex flex-row h-full">
-        <div className=" dark:bg-black bg-gray-100 border-r h-full">
+        {/* <div className=" dark:bg-black bg-gray-100 border-r h-full">
           <IconLayout label="listings" href="/">
             <ViewListIcon className="h-4 w-4 " />
           </IconLayout>
-        </div>
+        </div> */}
         {props.children}
       </div>
       <Command
