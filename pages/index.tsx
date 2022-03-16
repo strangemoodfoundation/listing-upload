@@ -13,6 +13,8 @@ import {
   ArrowRightIcon,
   PlusCircleIcon,
 } from '@heroicons/react/solid';
+import { Command } from '../components/command';
+import { useRouter } from 'next/router';
 
 function useListings() {
   const wallet = useWallet();
@@ -116,8 +118,9 @@ function ListingView({
 
 function ListingList() {
   const { listings, loading } = useListings();
+  const router = useRouter();
 
-  const isNew = (!loading && listings.length === 0) || true;
+  const isNew = !loading && listings.length === 0;
 
   return (
     <div className="flex flex-col w-full">
@@ -149,7 +152,7 @@ function ListingList() {
         )}
 
         <div>
-          <Link href="/listings/new">
+          <Link href="/new">
             <button
               className={cn({
                 'border-b-2 border border-black clear-border-color bg-white rounded px-2 py-0.5 text-sm flex items-center hover:bg-blue-50 hover:border-blue-700 hover:text-blue-600 active:border-b-1':
@@ -179,7 +182,7 @@ function ListingList() {
             </p>
 
             <div className="flex">
-              <Link href="/listings/new">
+              <Link href="/new">
                 <button className="border flex border-b-2 px-4 py-2 border-black clear-border-color rounded-sm">
                   Create a new game
                 </button>
@@ -188,6 +191,17 @@ function ListingList() {
           </article>
         )}
       </div>
+      <Command
+        id="new-listing"
+        onExecute={() => {
+          router.push('/new');
+        }}
+        search={['new game', 'new', 'create']}
+        className="p-base justify-between flex w-full items-center"
+      >
+        <div>New Listing</div>
+        <PlusCircleIcon className="h-4 w-4 text-muted" />
+      </Command>
     </div>
   );
 }

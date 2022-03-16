@@ -216,7 +216,7 @@ function PaletteBody() {
     <>
       <input
         className={cn({
-          'bg-white dark:bg-black dark:border-b p-4 rounded-t w-full outline-none placeholder-gray-300':
+          'bg-white dark:bg-black dark:border-b p-4 rounded-t border-b w-full outline-none placeholder-gray-300':
             true,
           'border-black dark:border-gray-600': filtered.length !== 0,
         })}

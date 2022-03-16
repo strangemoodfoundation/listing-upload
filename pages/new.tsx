@@ -14,6 +14,7 @@ import { PublicKey, Transaction } from '@solana/web3.js';
 import { useRouter } from 'next/router';
 import { FormElement } from '../components/FormElement';
 import { postListingMetadata } from '../lib/graphql';
+import Link from 'next/link';
 
 const Home: NextPage = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -94,13 +95,16 @@ const Home: NextPage = () => {
   return (
     <Layout>
       <div className="dark:bg-gray-900 bg-gray-50 flex flex-col w-full pb-12">
+        <div className="px-4 pt-2 text-sm  ">
+          <Link href="/">
+            <a className="underline text-muted">{`<~`} go back</a>
+          </Link>
+        </div>
         <div className="flex flex-col flex-1 max-w-4xl pt-12  mx-auto w-full">
           <h1 className="mb-1 font-bold text-lg dark:text-gray-200 pt-2 px-4">
             Create a new game for sale
           </h1>
-          <p className="px-4 mb-4 text-muted">
-            Last saved {new Date().toLocaleTimeString()}
-          </p>
+          <p className="px-4 mb-4 text-muted"></p>
           <div className="w-full flex lg:border-l lg:border-r border-t border-b flex-col w-full  bg-background">
             <div className="px-4 py-8 border-b bg-gray-100 dark:bg-black">
               <h2 className=" font-bold text-lg ">Basics</h2>

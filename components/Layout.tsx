@@ -1,6 +1,7 @@
 import { Command } from '../components/command';
 import {
   HeartIcon,
+  HomeIcon,
   QuestionMarkCircleIcon,
   TerminalIcon,
   UserGroupIcon,
@@ -119,22 +120,35 @@ export function Layout(props: { children: any }) {
       </div>
       <div className="flex flex-row h-full">
         <div className=" dark:bg-black bg-gray-100 border-r h-full">
-          <IconLayout label="listings" href="#">
+          <IconLayout label="listings" href="/">
             <ViewListIcon className="h-4 w-4 " />
           </IconLayout>
         </div>
         {props.children}
       </div>
       <Command
-        id="my-cmd"
+        id="home"
+        onExecute={() => {
+          router.push('/');
+        }}
+        search={['all', 'home', 'go home', 'go to home']}
+        className="p-base justify-between flex w-full items-center"
+        category="Navigation"
+      >
+        <div>Go home</div>
+        <HomeIcon className="text-muted h-4 w-4" />
+      </Command>
+      <Command
+        id="help"
         onExecute={() => {
           router.push('https://discord.gg/Y2R3VBcRmA');
         }}
         search={['discord', 'support', 'help', 'faq', 'docs']}
         className="p-base justify-between flex w-full items-center"
+        category="Support"
       >
-        <div>Get support</div>
-        <HeartIcon className="text-blue-500 h-4 w-4" />
+        <div>Discord</div>
+        <HeartIcon className="text-muted h-4 w-4" />
       </Command>
 
       <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-xs justify-between">
