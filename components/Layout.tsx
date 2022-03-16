@@ -1,8 +1,11 @@
 import { Command } from '../components/command';
 import {
+  ArrowRightIcon,
   CloudUploadIcon,
   HeartIcon,
   HomeIcon,
+  LibraryIcon,
+  MapIcon,
   QuestionMarkCircleIcon,
   SwitchHorizontalIcon,
   TerminalIcon,
@@ -185,16 +188,18 @@ export function MainLayout(props: { children: any }) {
         {props.children}
       </div>
       <Command
-        id="home"
+        id="all-listings"
         onExecute={() => {
           router.push('/');
         }}
-        search={['all', 'home', 'go home', 'go to home']}
+        search={['all', 'home', 'go home', 'go to all listings']}
         className="p-base justify-between flex w-full items-center"
         category="Navigation"
       >
-        <div>Go home</div>
-        <HomeIcon className="text-muted h-4 w-4" />
+        <div className="flex flex-row items-center">
+          <ArrowRightIcon className="h-4 w-4 mr-2 text-muted" />
+          <div>Go to all listings</div>
+        </div>
       </Command>
       <Command
         id="help"
@@ -206,7 +211,43 @@ export function MainLayout(props: { children: any }) {
         category="Support"
       >
         <div>Discord</div>
-        <HeartIcon className="text-muted h-4 w-4" />
+      </Command>
+      <Command
+        id="go-to-co-op"
+        onExecute={() => {
+          router.push('https://realms.today/dao/MOOD');
+        }}
+        search={[
+          'co-op',
+          'coop',
+          'go to governance',
+          'realm',
+          'realms',
+          'dao',
+          'government',
+          'vote',
+        ]}
+        className="p-base justify-between flex w-full items-center"
+        category="Navigation"
+      >
+        <div className="flex flex-row items-center">
+          <ArrowRightIcon className="h-4 w-4 mr-2 text-muted" />
+          <div>Go to co-op governance</div>
+        </div>
+      </Command>
+      <Command
+        id="go-to-docs"
+        onExecute={() => {
+          router.push('https://docs.strangemood.org/');
+        }}
+        search={['docs', 'help', 'go to docs', 'documentation']}
+        className="p-base justify-between flex w-full items-center"
+        category="Navigation"
+      >
+        <div className="flex flex-row items-center">
+          <ArrowRightIcon className="h-4 w-4 mr-2 text-muted" />
+          <div>Go to documentation</div>
+        </div>
       </Command>
       <ClusterCommands />
 
