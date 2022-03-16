@@ -216,7 +216,7 @@ function PaletteBody() {
     <>
       <input
         className={cn({
-          'bg-white dark:bg-black dark:border-b p-4 rounded-t w-full outline-none placeholder-gray-300':
+          'bg-white dark:bg-black dark:border-b p-4 rounded-t border-b w-full outline-none placeholder-gray-300':
             true,
           'border-black dark:border-gray-600': filtered.length !== 0,
         })}
@@ -308,7 +308,7 @@ export default function Palette() {
     <Modal
       isOpen={shown}
       className={cn({
-        'modal rounded max-w-lg bg-gray-50 dark:bg-gray-900 z-50 border border-black flex-col':
+        'modal rounded max-w-lg bg-gray-50 dark:bg-gray-900 z-50 border border-black clear-border-color flex-col':
           true,
       })}
       overlayClassName="modal-overlay z-50"

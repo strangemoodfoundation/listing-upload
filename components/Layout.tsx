@@ -1,21 +1,24 @@
 import { Command } from '../components/command';
 import {
   HeartIcon,
+  HomeIcon,
   QuestionMarkCircleIcon,
   TerminalIcon,
   UserGroupIcon,
+  ViewListIcon,
 } from '@heroicons/react/solid';
 import { useNotifications } from '../components/Notifications';
 import Link from 'next/link';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { useRouter } from 'next/router';
 
 function IconLayout(props: { label: string; children: any; href: string }) {
   return (
     <Link href={props.href}>
-      <a className="flex flex-col px-4 py-2 dark:hover:bg-gray-700 hover:bg-blue-200 items-center justify-center">
+      <a className="flex flex-row items-center px-4 py-2 dark:hover:bg-gray-700 hover:bg-blue-50 border-b justify-center bg-white text-muted hover:text-gray-900 dark:hover-gray-50 dark:bg-gray-800 ">
         {props.children}
-        <div className="text-xs text-muted">{props.label}</div>
+        <div className="text-xs  ml-1">{props.label}</div>
       </a>
     </Link>
   );
@@ -86,6 +89,7 @@ function WalletPage() {
 export function Layout(props: { children: any }) {
   const notify = useNotifications();
   const { publicKey, signMessage } = useWallet();
+  const router = useRouter();
 
   if (!publicKey) {
     return <WalletPage />;
@@ -93,12 +97,14 @@ export function Layout(props: { children: any }) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="border-b border-gray-normal dark:bg-gray-900 bg-gray-50">
+      <div className="border-b border-gray-normal dark:bg-gray-900 bg-gray-900 text-white">
         <div className="px-2 py-1 mx-auto flex flex-flex items-center justify-between">
           {publicKey && (
-            <div className="text-xs font-mono text-muted flex flex-col">
-              <div>logged in as</div>
-              <div>{publicKey.toBase58()}</div>
+            <div className="text-xs font-mono flex">
+              <img
+                src="/sun.svg"
+                className="h-4 w-4 mr-2 dark:bg-gray-500 bg-white"
+              />
             </div>
           )}
 
@@ -113,44 +119,46 @@ export function Layout(props: { children: any }) {
         </div>
       </div>
       <div className="flex flex-row h-full">
-        {/* <div className="py-4 dark:bg-black bg-gray-50  border-r h-full">
-          <IconLayout label="people" href="#">
-            <UserGroupIcon className="h-4 w-4" />
+        <div className=" dark:bg-black bg-gray-100 border-r h-full">
+          <IconLayout label="listings" href="/">
+            <ViewListIcon className="h-4 w-4 " />
           </IconLayout>
-        </div> */}
+        </div>
         {props.children}
       </div>
       <Command
-        id="my-cmd"
+        id="home"
         onExecute={() => {
-          console.log('hi');
-          notify('info', 'hello I am a notification');
+          router.push('/');
         }}
-        search={['example command']}
+        search={['all', 'home', 'go home', 'go to home']}
         className="p-base justify-between flex w-full items-center"
+        category="Navigation"
       >
-        <div>hi</div>
-        <HeartIcon className="text-blue-500 h-4 w-4" />
+        <div>Go home</div>
+        <HomeIcon className="text-muted h-4 w-4" />
       </Command>
-
       <Command
-        id="another-cmd"
+        id="help"
         onExecute={() => {
-          console.log('hi');
+          router.push('https://discord.gg/Y2R3VBcRmA');
         }}
-        search={['another command']}
-        className="p-base"
+        search={['discord', 'support', 'help', 'faq', 'docs']}
+        className="p-base justify-between flex w-full items-center"
+        category="Support"
       >
-        Another Command
+        <div>Discord</div>
+        <HeartIcon className="text-muted h-4 w-4" />
       </Command>
 
-      <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-sm justify-between">
+      <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-xs justify-between">
         <a
           href="https://github.com/strangemoodfoundation/studio"
           className="underline text-muted"
         >
           Edit this website
         </a>
+        <div className="text-muted">{publicKey.toBase58()}</div>
         <a
           href="https://discord.com/invite/Y2R3VBcRmA"
           className="underline text-muted"
