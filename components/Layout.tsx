@@ -188,7 +188,7 @@ export function MainLayout(props: { children: any }) {
         onExecute={() => {
           router.push('/');
         }}
-        search={['all', 'home', 'go home', 'go to all listings']}
+        search={['all', 'home', 'go home', 'go to all listings', 'listings']}
         className="p-base justify-between flex w-full items-center"
         category="Navigation"
       >
@@ -216,19 +216,21 @@ export function MainLayout(props: { children: any }) {
         search={[
           'co-op',
           'coop',
-          'go to governance',
+          'go to foundation government',
+          'governance',
           'realm',
           'realms',
           'dao',
           'government',
           'vote',
+          'foundation',
         ]}
         className="p-base justify-between flex w-full items-center"
         category="Navigation"
       >
         <div className="flex flex-row items-center">
           <ArrowRightIcon className="h-4 w-4 mr-2 text-muted" />
-          <div>Go to co-op governance</div>
+          <div>Go to foundation government</div>
         </div>
       </Command>
       <Command
