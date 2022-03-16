@@ -173,7 +173,7 @@ function PaletteBody() {
     if (category !== 'None') {
       components.push(
         <div
-          className="px-6 py-1 bg-gray-50   border-b border-t border-black muted "
+          className="px-6 py-1 bg-gray-50 dark:bg-black   border-b border-t border-black muted "
           key={'_cat_' + category}
         >
           {category}
