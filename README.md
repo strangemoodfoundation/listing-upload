@@ -1,6 +1,6 @@
-# Demo
+# Studio
 
-This is a demo client for the Precrypt protocol.
+This is a way to upload games on Strangemood.
 
 # Usage
 
