@@ -103,7 +103,7 @@ function ListingView({
     <Link href={`/listings/${listing.publicKey.toBase58()}`}>
       <a
         className={cn({
-          'px-2 py-4 border-b flex flex-col hover:bg-blue-50 h-18 flex flex-col justify-center transition-all':
+          'px-2 py-4 border-b flex flex-col hover:opacity-70 h-18 flex flex-col justify-center transition-all':
             true,
           'opacity-100': !!metadata,
           'opacity-0': !metadata,
