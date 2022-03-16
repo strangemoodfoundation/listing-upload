@@ -196,7 +196,7 @@ function ListingList() {
         onExecute={() => {
           router.push('/new');
         }}
-        search={['new game', 'new', 'create']}
+        search={['new game', 'game', 'new', 'create']}
         className="p-base justify-between flex w-full items-center"
       >
         <div>New Listing</div>
