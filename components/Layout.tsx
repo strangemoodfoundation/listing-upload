@@ -4,17 +4,13 @@ import {
   CloudUploadIcon,
   HeartIcon,
   HomeIcon,
-  LibraryIcon,
-  MapIcon,
   QuestionMarkCircleIcon,
   SwitchHorizontalIcon,
   TerminalIcon,
-  UserGroupIcon,
-  ViewListIcon,
 } from '@heroicons/react/solid';
 import { useNotifications } from '../components/Notifications';
 import Link from 'next/link';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useRouter } from 'next/router';
 import { useListing } from './useListing';
