@@ -1,5 +1,6 @@
 import { Command } from '../components/command';
 import {
+  CloudUploadIcon,
   HeartIcon,
   HomeIcon,
   QuestionMarkCircleIcon,
@@ -208,8 +209,8 @@ export function ListingLayout(props: { children: any }) {
       </div>
       <div className="flex flex-row h-full">
         <div className=" dark:bg-black bg-gray-100 border-r h-full">
-          <IconLayout label="listings" href="/">
-            <ViewListIcon className="h-4 w-4 " />
+          <IconLayout label="Files" href="/">
+            <CloudUploadIcon className="h-4 w-4 " />
           </IconLayout>
         </div>
         {props.children}

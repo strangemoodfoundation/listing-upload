@@ -66,14 +66,16 @@ function ListingView() {
     tx.add(...instructions);
     await program.provider.send(tx);
 
-    refetch();
+    setTimeout(async () => {
+      await refetch();
+    }, 100);
   }
 
   if (!listing || !listing.publicKey) return null;
 
   if (listing.metadata.platforms.length !== 0) {
     return (
-      <div className="flex h-full w-full flex-1 flex-col max-w-3xl mx-auto  border-l border-r">
+      <div className="flex h-full w-full flex-1 flex-col mx-auto ">
         <div className="flex bg-gray-50 dark:bg-black p-4 flex flex-col border-b">
           <h2 className="font-bold text-lg">{listing.metadata.name}</h2>
           <p>{listing.metadata.description}</p>
@@ -114,7 +116,7 @@ function ListingView() {
   }
 
   return (
-    <div className="flex h-full flex-col max-w-3xl w-full mx-auto border-l border-r">
+    <div className="flex h-full flex-col w-full mx-auto lg:border-l ">
       <div className="flex bg-gray-50 dark:bg-black p-4 flex flex-col border-b">
         <h2 className="font-bold text-lg">{listing.metadata.name}</h2>
         <p>{listing.metadata.description}</p>
