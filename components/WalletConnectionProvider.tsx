@@ -1,6 +1,7 @@
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
   ConnectionProvider,
+  useLocalStorage,
   WalletProvider,
 } from '@solana/wallet-adapter-react';
 import {
@@ -13,7 +14,8 @@ import {
   getTorusWallet,
 } from '@solana/wallet-adapter-wallets';
 import { clusterApiUrl } from '@solana/web3.js';
-import { FC, ReactNode, useMemo } from 'react';
+import { useRouter } from 'next/router';
+import { FC, ReactNode, useEffect, useMemo } from 'react';
 import { useFlag } from '../components/useFlag';
 
 let networks = {
@@ -21,15 +23,31 @@ let networks = {
   testnet: WalletAdapterNetwork.Testnet,
 };
 
-export function useNetworkFlag(): 'testnet' | 'mainnet-beta' {
-  const flag = useFlag('network', 'testnet');
-  return flag;
+// First checks for the URL in the query params, then checks for the local storage
+// value. If neither is found, returns mainnet-beta, and sets that to local storage
+export function useNetwork(): 'testnet' | 'mainnet-beta' {
+  const router = useRouter();
+
+  const flag = router.query['network'] as string | undefined;
+  const [localNetwork, setLocalNetwork] = useLocalStorage('network', flag);
+
+  useEffect(() => {
+    console.log('setting local network to', flag);
+    if (flag) setLocalNetwork(flag);
+  }, [flag]);
+
+  if (!(localNetwork === 'mainnet-beta' || localNetwork === 'testnet')) {
+    console.error('Invalid network', localNetwork);
+    return 'mainnet-beta';
+  }
+
+  return (localNetwork as any) || 'mainnet-beta';
 }
 
 export const WalletConnectionProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const flag = useNetworkFlag();
+  const flag = useNetwork();
   const network = networks[flag];
 
   // You can also provide a custom RPC endpoint

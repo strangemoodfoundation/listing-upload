@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import { FormElement } from '../../../components/FormElement';
 import { StrangemoodMetadata } from '../../../lib/metadata';
 import { setListingUri } from '@strangemood/strangemood';
-import { useNetworkFlag } from '../../../components/WalletConnectionProvider';
+import { useNetwork } from '../../../components/WalletConnectionProvider';
 import { useListing } from '../../../components/useListing';
 import { useNotifications } from '../../../components/Notifications';
 
@@ -17,7 +17,7 @@ function ListingView() {
   const { listing, refetch } = useListing(router.query.listingPubkey as string);
   const wallet = useWallet();
   const { connection } = useConnection();
-  const networkFlag = useNetworkFlag();
+  const networkFlag = useNetwork();
   const [keyCID, setKeyCID] = useState('');
   const [fileCID, setFileCID] = useState('');
   const notify = useNotifications();

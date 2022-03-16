@@ -18,7 +18,7 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useRouter } from 'next/router';
 import { useListing } from './useListing';
-import { useNetworkFlag } from './WalletConnectionProvider';
+import { useNetwork } from './WalletConnectionProvider';
 
 function IconLayout(props: { label: string; children: any; href: string }) {
   return (
@@ -33,7 +33,7 @@ function IconLayout(props: { label: string; children: any; href: string }) {
 
 function ClusterCommands() {
   const router = useRouter();
-  const flag = useNetworkFlag();
+  const flag = useNetwork();
   return (
     <>
       {flag !== 'testnet' && (
@@ -71,7 +71,7 @@ function ClusterCommands() {
 }
 
 function ClusterBanner() {
-  const flag = useNetworkFlag();
+  const flag = useNetwork();
   if (flag === 'mainnet-beta') return null;
 
   return (
