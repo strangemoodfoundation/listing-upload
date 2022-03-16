@@ -21,7 +21,7 @@ let networks = {
   testnet: WalletAdapterNetwork.Testnet,
 };
 
-export function useNetworkFlag(): "testnet" | "mainnet-beta" {
+export function useNetworkFlag(): 'testnet' | 'mainnet-beta' {
   const flag = useFlag('network', 'testnet');
   return flag;
 }

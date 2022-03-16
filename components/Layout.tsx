@@ -4,6 +4,7 @@ import {
   HeartIcon,
   HomeIcon,
   QuestionMarkCircleIcon,
+  SwitchHorizontalIcon,
   TerminalIcon,
   UserGroupIcon,
   ViewListIcon,
@@ -14,6 +15,7 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useRouter } from 'next/router';
 import { useListing } from './useListing';
+import { useNetworkFlag } from './WalletConnectionProvider';
 
 function IconLayout(props: { label: string; children: any; href: string }) {
   return (
@@ -23,6 +25,59 @@ function IconLayout(props: { label: string; children: any; href: string }) {
         <div className="text-xs  ml-1">{props.label}</div>
       </a>
     </Link>
+  );
+}
+
+function ClusterCommands() {
+  const router = useRouter();
+  const flag = useNetworkFlag();
+  return (
+    <>
+      {flag !== 'testnet' && (
+        <Command
+          id="use-testnet"
+          onExecute={() => {
+            router.query.network = 'testnet';
+            router.push(router);
+          }}
+          search={['testnet', 'use testnet', 'cluster']}
+          className="p-base justify-between flex w-full items-center"
+          category="Clusters"
+        >
+          <div>Use Testnet</div>
+          <SwitchHorizontalIcon className="text-muted h-4 w-4" />
+        </Command>
+      )}
+      {flag !== 'mainnet-beta' && (
+        <Command
+          id="use-mainnet"
+          onExecute={() => {
+            router.query.network = 'mainnet-beta';
+            router.push(router);
+          }}
+          search={['mainnet', 'use mainnet', 'cluster']}
+          className="p-base justify-between flex w-full items-center"
+          category="Clusters"
+        >
+          <div>Use Mainnet</div>
+          <SwitchHorizontalIcon className="text-muted h-4 w-4" />
+        </Command>
+      )}
+    </>
+  );
+}
+
+function ClusterBanner() {
+  const flag = useNetworkFlag();
+  if (flag === 'mainnet-beta') return null;
+
+  return (
+    <div className="font-mono border-b clear-border-color border-blue-200 justify-between flex text-sm px-2 py-1 bg-blue-700 w-full text-white">
+      <div className="inline">
+        <span className="text-blue-200">You are on </span>
+        <span className="font-bold">{flag}</span>
+      </div>
+    </div>
   );
 }
 
@@ -99,6 +154,7 @@ export function MainLayout(props: { children: any }) {
 
   return (
     <div className="flex flex-col h-full">
+      <ClusterBanner />
       <div className="border-b border-gray-normal dark:bg-gray-900 bg-gray-900 text-white">
         <div className="px-2 py-1 mx-auto flex flex-flex items-center justify-between">
           {publicKey && (
@@ -152,6 +208,7 @@ export function MainLayout(props: { children: any }) {
         <div>Discord</div>
         <HeartIcon className="text-muted h-4 w-4" />
       </Command>
+      <ClusterCommands />
 
       <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-xs justify-between">
         <a
@@ -185,6 +242,7 @@ export function ListingLayout(props: { children: any }) {
 
   return (
     <div className="flex flex-col h-full">
+      <ClusterBanner />
       <div className="border-b border-gray-normal dark:bg-gray-900 bg-gray-900 text-white">
         <div className="px-2 py-1 mx-auto flex flex-flex items-center justify-between">
           {publicKey && (
@@ -239,6 +297,7 @@ export function ListingLayout(props: { children: any }) {
         <div>Discord</div>
         <HeartIcon className="text-muted h-4 w-4" />
       </Command>
+      <ClusterCommands />
 
       <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-xs justify-between">
         <a
