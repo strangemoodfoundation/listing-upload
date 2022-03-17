@@ -39,7 +39,7 @@ function ClusterCommands() {
             router.query.network = 'testnet';
             router.push(router);
           }}
-          search={['testnet', 'use testnet', 'cluster']}
+          search={['testnet', 'switch', 'use testnet', 'cluster']}
           className="p-base justify-between flex w-full items-center"
           category="Clusters"
         >
@@ -54,7 +54,7 @@ function ClusterCommands() {
             router.query.network = 'mainnet-beta';
             router.push(router);
           }}
-          search={['mainnet', 'use mainnet', 'cluster']}
+          search={['mainnet', 'switch', 'use mainnet', 'cluster']}
           className="p-base justify-between flex w-full items-center"
           category="Clusters"
         >
