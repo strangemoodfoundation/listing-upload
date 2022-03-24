@@ -100,7 +100,7 @@ const Home: NextPage = () => {
             <a className="underline text-muted">{`<~`} go back</a>
           </Link>
         </div>
-        <div className="flex flex-col flex-1 max-w-4xl pt-12  mx-auto w-full">
+        <div className="flex flex-col flex-1 max-w-4xl pt-8  mx-auto w-full">
           <h1 className="mb-1 font-bold text-lg dark:text-gray-200 pt-2 px-4">
             Create a new game for sale
           </h1>
