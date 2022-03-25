@@ -76,6 +76,47 @@ function UploadFiles() {
   if (!listing) {
     return null;
   }
+  if (listing.metadata.platforms.length !== 0) {
+    return (
+      <div className="pattern w-full">
+        <div className="flex h-full w-full flex-1 flex-col my-4 max-auto pattern">
+          <div className="bg-white max-w-6xl mx-auto border-l border-r border-b w-full">
+            <div>
+              <div className="flex flex-col">
+                {listing.metadata.platforms.map((platform) => (
+                  <div
+                    className="p-4 flex flex-col border-t"
+                    key={'platform' + platform.type}
+                  >
+                    <div>{platform.type}</div>
+                    <div>
+                      {platform.precrypts.map((precrypt) => (
+                        <div key={'precrypt' + precrypt.key + precrypt.file}>
+                          <div className="mb-2 ">
+                            <div className="text-sm text-muted">key</div>
+                            <div className="font-mono">{precrypt.key.uri}</div>
+                          </div>
+                          <div className="mb-2 ">
+                            <div className="text-sm text-muted">file</div>
+                            <div className="font-mono">{precrypt.file.uri}</div>
+                          </div>
+
+                          <div className="mb-2">
+                            <div className="text-sm text-muted">proxy</div>
+                            <div className="font-mono">{precrypt.proxy}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pattern w-full">
