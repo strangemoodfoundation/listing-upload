@@ -4,8 +4,10 @@ import {
   CloudUploadIcon,
   HeartIcon,
   HomeIcon,
+  LinkIcon,
   QuestionMarkCircleIcon,
   SwitchHorizontalIcon,
+  TableIcon,
   TerminalIcon,
 } from '@heroicons/react/solid';
 import { useNotifications } from '../components/Notifications';
@@ -15,17 +17,8 @@ import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useRouter } from 'next/router';
 import { useListing } from './useListing';
 import { useNetwork } from './WalletConnectionProvider';
-
-function IconLayout(props: { label: string; children: any; href: string }) {
-  return (
-    <Link href={props.href}>
-      <a className="flex flex-row items-center px-4 py-2 dark:hover:bg-gray-700 hover:bg-blue-50 border-b justify-center bg-white text-muted hover:text-gray-900 dark:hover-gray-50 dark:bg-gray-800 ">
-        {props.children}
-        <div className="text-xs  ml-1">{props.label}</div>
-      </a>
-    </Link>
-  );
-}
+import copy from 'copy-to-clipboard';
+import cn from 'classnames';
 
 function ClusterCommands() {
   const router = useRouter();
@@ -41,7 +34,7 @@ function ClusterCommands() {
           }}
           search={['testnet', 'switch', 'use testnet', 'cluster']}
           className="p-base justify-between flex w-full items-center"
-          category="Clusters"
+          category="Environments"
         >
           <div>Use Testnet</div>
           <SwitchHorizontalIcon className="text-muted h-4 w-4" />
@@ -56,7 +49,7 @@ function ClusterCommands() {
           }}
           search={['mainnet', 'switch', 'use mainnet', 'cluster']}
           className="p-base justify-between flex w-full items-center"
-          category="Clusters"
+          category="Environments"
         >
           <div>Use Mainnet</div>
           <SwitchHorizontalIcon className="text-muted h-4 w-4" />
@@ -71,10 +64,11 @@ function ClusterBanner() {
   if (flag === 'mainnet-beta') return null;
 
   return (
-    <div className="font-mono border-b clear-border-color border-blue-200 justify-between flex text-sm px-2 py-1 bg-blue-700 w-full text-white">
-      <div className="inline">
-        <span className="text-blue-200">You are on </span>
-        <span className="font-bold">{flag}</span>
+    <div className="font-mono justify-between flex border-b clear-border-color border-gray-800 text-xs py-1 bg-black w-full text-white items-center ">
+      <div className="inline flex items-center max-w-6xl mx-auto w-full px-4 ">
+        <SwitchHorizontalIcon className="h-3 w-3 mr-2 text-muted" />
+        <span className="text-gray-500">You are on </span>
+        <span className="font-bold ml-2">{flag} </span>
       </div>
     </div>
   );
@@ -268,10 +262,28 @@ export function MainLayout(props: { children: any }) {
   );
 }
 
+function Tab(props: { children: any; active?: boolean; href: string }) {
+  return (
+    <Link href={props.href}>
+      <a
+        className={cn({
+          'text-sm px-2 pb-2 flex': true,
+          'border-b-2 border-blue-500 clear-border-color': props.active,
+        })}
+      >
+        {props.children}
+      </a>
+    </Link>
+  );
+}
+
 export function ListingLayout(props: { children: any }) {
   const notify = useNotifications();
   const { publicKey, signMessage } = useWallet();
   const router = useRouter();
+  const flag = useNetwork();
+
+  console.log(router);
 
   const { listing } = useListing(router.query.listingPubkey as any);
 
@@ -280,49 +292,108 @@ export function ListingLayout(props: { children: any }) {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-gray-900 ">
       <ClusterBanner />
-      <div className="border-b border-gray-normal dark:bg-gray-900 bg-gray-900 text-white">
-        <div className="px-2 py-1 mx-auto flex flex-flex items-center justify-between">
-          {publicKey && (
-            <div className="text-xs font-mono flex">
-              <img
-                src="/sun.svg"
-                className="h-4 w-4 mr-2 dark:bg-gray-500 bg-white"
-              />
-              <div>{listing && listing.publicKey}</div>
-            </div>
-          )}
 
-          <button
-            className="p-1 hover:opacity-70"
-            onClick={() => {
-              notify('info', 'Press ctrl-k or cmd-k!');
-            }}
-          >
-            <TerminalIcon className="h-4 w-4" />
-          </button>
+      <div className="px-4 pt-4 text-white flex justify-between max-w-6xl mx-auto w-full">
+        <div>
+          <div className="font-bold flex h-6">
+            {listing && listing.metadata && listing.metadata.name}
+          </div>
+          <div className="text-muted h-6">
+            {' '}
+            {listing && listing.metadata && listing.metadata.description}
+          </div>
+        </div>
+
+        <div className="flex gap-2 items-center">
+          {/* <button className="border rounded-sm text-xs clear-border-color border-green-700 text-green-400 hover:opacity-50 text-sm bg-gray-800 border-b-2 flex">
+            <div className="px-2 py-1 ">Publish</div>
+          </button> */}
         </div>
       </div>
-      <div className="flex flex-row h-full">
-        <div className=" dark:bg-black bg-gray-100 border-r h-full">
-          <IconLayout label="Files" href="/">
-            <CloudUploadIcon className="h-4 w-4 " />
-          </IconLayout>
+
+      <div className="bg-gray-900 pt-12 pb-4 text-white">
+        <div className="border-b clear-border-color border-gray-700">
+          <div className="px-2 flex gap-4 max-w-6xl mx-auto">
+            <Tab
+              active={router.route === '/listings/[listingPubkey]'}
+              href={
+                listing ? `/listings/${listing.publicKey.toString()}/` : '#'
+              }
+            >
+              Overview
+            </Tab>
+
+            {router.route !== '/listings/[listingPubkey]' && (
+              <Command
+                id="tab-overview"
+                onExecute={() => {
+                  router.push(`/listings/${listing.publicKey.toString()}/`);
+                }}
+                search={['overview', 'go to overview']}
+                className="p-base justify-between flex w-full items-center"
+                category="Navigation"
+              >
+                <div className="flex items-center">
+                  <ArrowRightIcon className="h-4 w-4 mr-2 text-muted" />
+                  <div>Go to overview</div>
+                </div>
+              </Command>
+            )}
+
+            <Tab
+              active={router.route === '/listings/[listingPubkey]/files'}
+              href={
+                listing
+                  ? `/listings/${listing.publicKey.toString()}/files`
+                  : '#'
+              }
+            >
+              Game Files
+            </Tab>
+
+            {router.route !== '/listings/[listingPubkey]/files' && (
+              <Command
+                id="tab-files"
+                onExecute={() => {
+                  router.push(
+                    `/listings/${listing.publicKey.toString()}/files`
+                  );
+                }}
+                search={[
+                  'files',
+                  'upload',
+                  'game files',
+                  'build',
+                  'go to game files',
+                ]}
+                className="p-base justify-between flex w-full items-center"
+                category="Navigation"
+              >
+                <div className="flex items-center">
+                  <ArrowRightIcon className="h-4 w-4 mr-2 text-muted" />
+                  <div>Go to game files</div>
+                </div>
+              </Command>
+            )}
+          </div>
         </div>
-        {props.children}
       </div>
+      <div className="flex flex-row h-full">{props.children}</div>
       <Command
         id="home"
         onExecute={() => {
           router.push('/');
         }}
-        search={['all', 'home', 'go home', 'go to home']}
+        search={['all', 'go to all listings']}
         className="p-base justify-between flex w-full items-center"
         category="Navigation"
       >
-        <div>Go home</div>
-        <HomeIcon className="text-muted h-4 w-4" />
+        <div className="flex items-center">
+          <ArrowRightIcon className="h-4 w-4 mr-2 text-muted" />
+          <div>Go to all listings</div>
+        </div>
       </Command>
       <Command
         id="help"
@@ -336,6 +407,32 @@ export function ListingLayout(props: { children: any }) {
         <div>Discord</div>
         <HeartIcon className="text-muted h-4 w-4" />
       </Command>
+
+      {listing && (
+        <>
+          <Command
+            id="help"
+            onExecute={() => {
+              copy('https://checkout.strangemood.org/r/' + listing.publicKey);
+              notify('info', 'Copied to clipboard!');
+            }}
+            search={[
+              'checkout',
+              'copy store link',
+              'store',
+              'url',
+              'copy',
+              'link',
+              'checkout',
+            ]}
+            className="p-base justify-between flex w-full items-center"
+            category="Explore"
+          >
+            <div>Copy store link</div>
+            <LinkIcon className="text-muted h-4 w-4" />
+          </Command>
+        </>
+      )}
       <ClusterCommands />
 
       <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-xs justify-between">

@@ -99,6 +99,10 @@ function ListingView({
     );
   }
 
+  if (!metadata) {
+    return null;
+  }
+
   return (
     <Link href={`/listings/${listing.publicKey.toBase58()}`}>
       <a
