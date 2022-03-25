@@ -13,7 +13,7 @@ function ListingView() {
   return (
     <div className="pattern w-full h-full">
       <div className="max-w-6xl mx-auto w-full my-4">
-        <div className="flex h-full flex-col w-full mx-auto lg:border-l border-t ">
+        <div className="flex h-full flex-col w-full mx-auto border-l border-r border-t ">
           <div className="flex bg-gray-50 dark:bg-black p-4 flex flex-col border-b">
             <h2 className="font-bold text-lg">{listing.metadata.name}</h2>
             <p>{listing.metadata.description}</p>
