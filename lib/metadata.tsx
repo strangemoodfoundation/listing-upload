@@ -80,3 +80,25 @@ export interface StrangemoodMetadata {
   videos: VideoNodeMetadata[];
   platforms: PlatformNodeMetadata[];
 }
+
+export const BLANK_METADATA = {
+  name: '',
+  description: '',
+  createdAt: new Date().getTime() / 1000,
+  updatedAt: new Date().getTime() / 1000,
+  creators: [],
+  images: [],
+  links: [],
+  tags: [],
+  videos: [],
+  platforms: [],
+  primaryImage: {
+    src: {
+      uri: '',
+      contentType: '',
+    },
+    alt: '',
+    height: 0,
+    width: 0,
+  },
+};

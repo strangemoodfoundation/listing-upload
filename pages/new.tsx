@@ -1,7 +1,10 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import type { NextPage } from 'next';
 import { useState } from 'react';
-import { useCreateListingStore } from '../components/stores/useCreateListingStore';
+import {
+  onChainAccountData,
+  useListingModifications,
+} from '../components/stores/useCreateListingStore';
 import { MainLayout } from '../components/Layout';
 import { asImage } from '../lib/asImage';
 import { saveFile, saveJson } from '../lib/storage';
@@ -15,13 +18,13 @@ import { useRouter } from 'next/router';
 import { FormElement } from '../components/FormElement';
 import { postListingMetadata } from '../lib/graphql';
 import Link from 'next/link';
+import omit from 'lodash/omit';
+import { BLANK_METADATA, ImageNodeMetadata } from '../lib/metadata';
 
 const Home: NextPage = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const notify = useNotifications();
-  const store = useCreateListingStore();
-  const [price, setPrice] = useState<number>(0.0001);
-  const [bounty, setBounty] = useState<number>(10);
+  const store = useListingModifications();
 
   async function onSelectImage(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files) return;
@@ -32,9 +35,9 @@ const Home: NextPage = () => {
     const cid = await saveFile(file);
     const img = await asImage(file);
 
-    store.set((data) => {
+    store.change((data) => {
       let primaryImage = {
-        ...(data.metadata.primaryImage || {}),
+        alt: data.primaryImage?.alt || '',
         src: {
           uri: 'https://ipfs.io/ipfs/' + cid,
           contentType: file.type,
@@ -42,8 +45,11 @@ const Home: NextPage = () => {
         width: img.width,
         height: img.height,
       };
-      return { ...data, metadata: { ...data.metadata, primaryImage } };
+      return {
+        primaryImage,
+      };
     });
+
     setUploadingImage(false);
 
     notify('success', 'Image uploaded!');
@@ -55,16 +61,19 @@ const Home: NextPage = () => {
   const router = useRouter();
 
   async function onPublish() {
-    if (!store.metadata || !store.metadata.primaryImage) {
+    if (!store.modifications.primaryImage) {
       notify('error', 'Please select an image');
-      console.log(store.metadata);
       return;
     }
     notify('info', 'Uploading...');
     setIsPublishing(true);
 
     // upload metadata to IPFS
-    const { key } = await postListingMetadata(store.metadata);
+    let metadata = omit(store.modifications, 'onChainAccountData');
+    const { key } = await postListingMetadata({
+      ...BLANK_METADATA,
+      ...metadata,
+    });
 
     notify('info', 'Created metadata...');
 
@@ -74,13 +83,15 @@ const Home: NextPage = () => {
       program,
       signer: program.provider.wallet.publicKey,
       uri: 'ipfs://' + key,
-      price: new BN(price * 1000000000),
-      currency: splToken.NATIVE_MINT,
-      cashierSplit: bounty / 100,
+      price: new BN(store.modifications.onChainAccountData.price * 1000000000),
+      currency: new PublicKey(
+        store.modifications.onChainAccountData.currencyPublicKey
+      ),
+      cashierSplit: store.modifications.onChainAccountData.bounty,
       isAvailable: true,
       isConsumable: false,
       isRefundable: false,
-      // Testnet charter
+      // Testnet charter, TODO fix this to use the correct charter
       charter: new PublicKey('8iKjJx3hUNB2mtzMXnoghYiGy73GZXUW8vu8h1ASQDTR'),
     });
     let tx = new Transaction();
@@ -114,8 +125,8 @@ const Home: NextPage = () => {
                 className="px-4 py-2 flex w-full bg-foreground "
                 placeholder="ex: 'Form Field Simulator 2'"
                 autoFocus={true}
-                value={store.metadata.name}
-                onChange={(e) => store.put('name', e.target.value)}
+                value={store.modifications.name}
+                onChange={(e) => store.change(() => ({ name: e.target.value }))}
                 disabled={isPublishing}
               />
             </FormElement>
@@ -124,8 +135,10 @@ const Home: NextPage = () => {
                 className="px-4 py-2 flex w-full bg-foreground border-0"
                 placeholder="A short paragraph that appears on stores"
                 autoFocus={true}
-                value={store.metadata.description}
-                onChange={(e) => store.put('description', e.target.value)}
+                value={store.modifications.description}
+                onChange={(e) =>
+                  store.change(() => ({ description: e.target.value }))
+                }
                 disabled={isPublishing}
               />
             </FormElement>
@@ -155,20 +168,22 @@ const Home: NextPage = () => {
               >
                 <input
                   className="px-4 py-2 flex-1  flex w-full bg-foreground"
-                  placeholder={`ex: "${store.metadata.name || 'title'}"`}
+                  placeholder={`ex: "A cast of interesting characters"`}
                   autoFocus={true}
                   disabled={isPublishing}
-                  value={store.metadata.primaryImage?.alt}
+                  value={store.modifications.primaryImage?.alt}
                   onChange={(e) =>
-                    store.set((data) => {
-                      let primaryImage = {
-                        ...(data.metadata.primaryImage || {}),
+                    store.change((s) => {
+                      let primaryImage: ImageNodeMetadata = {
+                        height: s.primaryImage?.height || 0,
+                        width: s.primaryImage?.width || 0,
+                        src: s.primaryImage?.src || {
+                          uri: '',
+                          contentType: '',
+                        },
                         alt: e.target.value,
                       };
-                      return {
-                        ...data,
-                        metadata: { ...data.metadata, primaryImage },
-                      };
+                      return { primaryImage };
                     })
                   }
                 />
@@ -188,8 +203,20 @@ const Home: NextPage = () => {
                   className="px-4 py-2 flex w-full bg-foreground h-10"
                   placeholder={`10.00`}
                   type="number"
-                  value={price}
-                  onChange={(e) => setPrice(parseFloat(e.target.value))}
+                  value={store.modifications.onChainAccountData.price}
+                  onChange={(e) =>
+                    store.change((s) => {
+                      let onChainAccountData: onChainAccountData = {
+                        price: parseFloat(e.target.value),
+                        bounty: s.onChainAccountData?.bounty,
+                        currencyPublicKey:
+                          s.onChainAccountData?.currencyPublicKey,
+                      };
+                      return {
+                        onChainAccountData,
+                      };
+                    })
+                  }
                   autoFocus={true}
                   disabled={isPublishing}
                 />
@@ -213,18 +240,35 @@ const Home: NextPage = () => {
                 hint="The amount of each sale that goes to a marketplace that begins the sale. Setting a higher number may make you appear in more stores, and potentially earn more sales."
               >
                 <div className="px-4 py-2 flex items-center">
-                  <div className="font-mono text-sm w-12">{bounty} %</div>
+                  <div className="font-mono text-sm w-20">
+                    {(
+                      store.modifications.onChainAccountData.bounty * 100
+                    ).toFixed(1)}{' '}
+                    %
+                  </div>
 
                   <input
                     className="ml-4 inline-flex w-full bg-foreground transition-all"
-                    placeholder={`ex: "${store.metadata.name || 'title'}"`}
+                    placeholder={`ex: "${store.modifications.name || 'title'}"`}
                     autoFocus={true}
                     type="range"
                     min="0"
                     max="100"
-                    value={bounty}
+                    value={store.modifications.onChainAccountData.bounty * 100}
                     disabled={isPublishing}
-                    onChange={(e) => setBounty(parseFloat(e.target.value))}
+                    onChange={(e) => {
+                      store.change((s) => {
+                        let onChainAccountData: onChainAccountData = {
+                          price: s.onChainAccountData?.price || 0.0,
+                          bounty: parseFloat(e.target.value) / 100,
+                          currencyPublicKey:
+                            s.onChainAccountData.currencyPublicKey,
+                        };
+                        return {
+                          onChainAccountData,
+                        };
+                      });
+                    }}
                   />
                 </div>
               </FormElement>
@@ -241,8 +285,8 @@ const Home: NextPage = () => {
               <button
                 className="btn secondary p-base disabled:opacity-20"
                 disabled={
-                  !store.metadata ||
-                  !store.metadata.name ||
+                  !store.modifications.name ||
+                  !store.modifications.primaryImage ||
                   uploadingImage ||
                   isPublishing
                 }

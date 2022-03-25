@@ -1,50 +1,47 @@
-import create, { SetState } from 'zustand';
+import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
 import { persist } from 'zustand/middleware';
 import lodashSet from 'lodash/set';
 import { StrangemoodMetadata } from '../../lib/metadata';
+import * as splToken from '@solana/spl-token';
 
-type SetStrangemoodState = SetState<StrangemoodMetadataStore>;
-type PutStrangemoodState<K extends keyof StrangemoodMetadata> = (
-  key: K,
-  value: StrangemoodMetadata[K]
-) => void;
-
-interface StrangemoodMetadataStore {
-  set: SetStrangemoodState;
-
-  // Set an individual key.
-  put: PutStrangemoodState<keyof StrangemoodMetadata>;
-  metadata: StrangemoodMetadata;
+// Configurable changes to the listing that aren't included
+// in the listing metadata.
+export interface onChainAccountData {
+  price: number;
+  bounty: number;
+  currencyPublicKey: string;
 }
 
-export const useCreateListingStore = create<StrangemoodMetadataStore>(
-  (set) => ({
-    metadata: {
-      name: '',
-      description: '',
-      primaryImage: {
-        src: {
-          contentType: '',
-          uri: '',
-        },
-        height: 100,
-        width: 200,
-        alt: '',
+const DEFAULT_PRICE = 0.0001;
+const DEFAULT_BOUNTY = 0.1;
+const DEFAULT_CURRENCY = splToken.NATIVE_MINT.toBase58();
+
+interface ModifiableData extends Partial<StrangemoodMetadata> {
+  // Changes made to on-chain data that's not included in the metadata
+  onChainAccountData: onChainAccountData;
+}
+
+interface MetadataChanges {
+  change: (
+    modification: (initial: ModifiableData) => Partial<ModifiableData>
+  ) => void;
+  modifications: ModifiableData;
+}
+
+export const useListingModifications = create<MetadataChanges>((set, get) => ({
+  change: (modification) => {
+    set((state) => ({
+      modifications: {
+        ...state.modifications,
+        ...modification(state.modifications),
       },
-      createdAt: 0,
-      updatedAt: 0,
-      images: [],
-      links: [],
-      tags: [],
-      videos: [],
-      platforms: [],
-      creators: [],
+    }));
+  },
+  modifications: {
+    onChainAccountData: {
+      price: DEFAULT_PRICE,
+      bounty: DEFAULT_BOUNTY,
+      currencyPublicKey: DEFAULT_CURRENCY,
     },
-    set: set,
-    put: (key, value) =>
-      set((state) => ({
-        ...state,
-        metadata: { ...state.metadata, [key]: value },
-      })),
-  })
-);
+  },
+}));
