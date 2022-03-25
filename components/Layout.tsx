@@ -307,9 +307,9 @@ export function ListingLayout(props: { children: any }) {
         </div>
 
         <div className="flex gap-2 items-center">
-          <button className="border rounded-sm text-xs clear-border-color border-green-700 text-green-400 hover:opacity-50 text-sm bg-gray-800 border-b-2 flex">
+          {/* <button className="border rounded-sm text-xs clear-border-color border-green-700 text-green-400 hover:opacity-50 text-sm bg-gray-800 border-b-2 flex">
             <div className="px-2 py-1 ">Publish</div>
-          </button>
+          </button> */}
         </div>
       </div>
 
