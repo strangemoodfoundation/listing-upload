@@ -93,6 +93,17 @@ export function useUpdateListing(publicKey: string) {
 
   const debouncedStoreModifications = useDebounce(store.modifications, 100);
 
+  // If the listing updates (either from load or from refetch)
+  // load the changes into the input fields, without removing
+  // the user's changes
+  useEffect(() => {
+    if (!listing || !listing.metadata) return;
+    store.change((data) => {
+      const final = merge({ ...listing.metadata }, { ...data });
+      return final;
+    });
+  }, [listing]);
+
   // This ensures that the buttons are grayed out when the user starts
   // typing / modifying, and not when the debounce has hit.
   //
@@ -101,9 +112,7 @@ export function useUpdateListing(publicKey: string) {
   useEffect(() => {
     if (!listing) return;
     let metadata = omit(store.modifications, 'onChainAccountData');
-    console.log(listing.metadata);
-    const final = merge(listing.metadata, metadata);
-    console.log(final);
+    const final = merge({ ...listing.metadata }, { ...metadata }); // merge mutates, hence the ...
     if (JSON.stringify(final) !== JSON.stringify(listing.metadata)) {
       setIsDiff(true);
       setIsLoading(true);
@@ -134,7 +143,7 @@ export function useUpdateListing(publicKey: string) {
     load().catch(console.error);
   }, [debouncedStoreModifications]);
 
-  async function update() {
+  async function publish() {
     if (!connection || !wallet || !listing) return;
     const program = await grabStrangemood(connection, wallet);
 
@@ -143,12 +152,17 @@ export function useUpdateListing(publicKey: string) {
       ...BLANK_METADATA,
       ...metadata,
     });
+
+    // todo
   }
 
   return {
-    update,
+    publish,
+    change: store.change,
+    draft: store.modifications,
     isLoading,
     isDiff,
     cid,
+    listing,
   };
 }

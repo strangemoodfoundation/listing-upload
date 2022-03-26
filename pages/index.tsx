@@ -97,6 +97,12 @@ function ListingView({
     );
   }
 
+  // Remove listings that don't have primary images.
+  // TODO: we should generate openmetagraph superstruct validators, and then use them here.
+  if (metadata && !metadata.primaryImage.src?.contentType) {
+    return null;
+  }
+
   return (
     <button
       className={

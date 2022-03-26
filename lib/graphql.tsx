@@ -92,8 +92,6 @@ export async function postListingMetadata(doc: StrangemoodMetadata) {
     }
   `;
 
-  console.log(doc);
-
   const data = (await request(
     `https://www.openmetagraph.com/api/graphql?schema=${LISTING_METADATA_SCHEMA}`,
     query,

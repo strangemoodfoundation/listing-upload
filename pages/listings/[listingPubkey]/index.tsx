@@ -1,14 +1,15 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { ListingLayout } from '../../../components/Layout';
 import { useRouter } from 'next/router';
-import { useListing } from '../../../components/useListing';
+import { useListing, useUpdateListing } from '../../../components/useListing';
 import { FormElement } from '../../../components/FormElement';
 import { useListingModifications } from '../../../components/stores/useCreateListingStore';
 
 function ListingView() {
   const router = useRouter();
-  const { listing, refetch } = useListing(router.query.listingPubkey as string);
-  const store = useListingModifications();
+  const { listing, draft, change } = useUpdateListing(
+    router.query.listingPubkey as string
+  );
 
   if (!listing || !listing.publicKey)
     return <div className="flex h-full w-full pattern"></div>;
@@ -22,8 +23,8 @@ function ListingView() {
               className="px-4 py-2 flex w-full bg-foreground "
               placeholder="ex: 'Form Field Simulator 2'"
               autoFocus={true}
-              value={store.modifications.name}
-              onChange={(e) => store.change(() => ({ name: e.target.value }))}
+              value={draft.name}
+              onChange={(e) => change(() => ({ name: e.target.value }))}
             />
           </FormElement>
           <FormElement label="description" className="">
@@ -31,10 +32,8 @@ function ListingView() {
               className="px-4 py-2 flex w-full bg-foreground border-0"
               placeholder="A short paragraph that appears on stores"
               autoFocus={true}
-              value={store.modifications.description}
-              onChange={(e) =>
-                store.change(() => ({ description: e.target.value }))
-              }
+              value={draft.description}
+              onChange={(e) => change(() => ({ description: e.target.value }))}
             />
           </FormElement>
         </div>
