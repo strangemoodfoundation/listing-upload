@@ -1,18 +1,12 @@
 import { Command } from '../components/command';
 import {
   ArrowRightIcon,
-  CloudUploadIcon,
   HeartIcon,
-  HomeIcon,
   LightningBoltIcon,
   LinkIcon,
   QuestionMarkCircleIcon,
-  SaveIcon,
   SwitchHorizontalIcon,
-  TableIcon,
   TerminalIcon,
-  UploadIcon,
-  XCircleIcon,
 } from '@heroicons/react/solid';
 import { useNotifications } from '../components/Notifications';
 import Link from 'next/link';
@@ -174,7 +168,7 @@ export function MainLayout(props: { children: any }) {
           </button>
         </div>
       </div>
-      <div className="flex flex-row h-full">
+      <div className="flex flex-row flex-1">
         {/* <div className=" dark:bg-black bg-gray-100 border-r h-full">
           <IconLayout label="listings" href="/">
             <ViewListIcon className="h-4 w-4 " />

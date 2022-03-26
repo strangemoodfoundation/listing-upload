@@ -8,11 +8,7 @@ import { getListingMetadata } from '../lib/graphql';
 import { StrangemoodMetadata } from '../lib/metadata';
 import Link from 'next/link';
 import cn from 'classnames';
-import {
-  ArrowCircleRightIcon,
-  ArrowRightIcon,
-  PlusCircleIcon,
-} from '@heroicons/react/solid';
+import { PlusCircleIcon } from '@heroicons/react/solid';
 import { Command } from '../components/command';
 import { useRouter } from 'next/router';
 
@@ -69,6 +65,8 @@ function ListingView({
     });
   }, [listing.account.uri]);
 
+  const router = useRouter();
+
   if (err) {
     return (
       <div className="px-2 h-24 flex flex-col justify-center py-2 border-b">
@@ -99,24 +97,19 @@ function ListingView({
     );
   }
 
-  if (!metadata) {
-    return null;
-  }
-
   return (
-    <Link href={`/listings/${listing.publicKey.toBase58()}`}>
-      <a
-        className={cn({
-          'px-2 py-4 border-b flex flex-col hover:opacity-70 h-18 flex flex-col justify-center transition-all':
-            true,
-          'opacity-100': !!metadata,
-          'opacity-0': !metadata,
-        })}
-      >
-        {metadata && <div className="font-bold">{metadata.name}</div>}
-        <div className="text-xs text-muted">{listing.publicKey.toBase58()}</div>
-      </a>
-    </Link>
+    <button
+      className={
+        'px-2 py-4 border-b flex flex-col hover:opacity-70 h-18 flex flex-col justify-center transition-all'
+      }
+      disabled={!metadata}
+      onClick={() => {
+        router.push(`/listings/${listing.publicKey.toBase58()}`);
+      }}
+    >
+      {metadata && <div className="font-bold">{metadata.name}</div>}
+      <div className="text-xs text-muted">{listing.publicKey.toBase58()}</div>
+    </button>
   );
 }
 
@@ -127,7 +120,7 @@ function ListingList() {
   const isNew = !loading && listings.length === 0;
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full flex-1">
       <div className="px-2 py-2 w-full bg-gray-50 dark:bg-black border-b flex items-center justify-between">
         {isNew && (
           <div className="w-full flex items-center font-mono text-xs inline">
@@ -170,7 +163,7 @@ function ListingList() {
           </Link>
         </div>
       </div>
-      <div className="flex flex-col pb-12 h-full">
+      <div className="flex flex-1 flex-col pb-12 ">
         {!isNew &&
           listings.map((l) => (
             <ListingView listing={l} key={'l' + l.publicKey.toBase58()} />
@@ -213,7 +206,7 @@ function ListingList() {
 export default function IndexPage() {
   return (
     <MainLayout>
-      <div className="  mx-auto w-full flex">
+      <div className=" h-full mx-auto w-full flex flex-1">
         <ListingList />
       </div>
     </MainLayout>

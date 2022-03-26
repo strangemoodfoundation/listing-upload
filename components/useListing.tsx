@@ -7,7 +7,7 @@ import { Listing } from '@strangemood/strangemood';
 import { BLANK_METADATA, StrangemoodMetadata } from '../lib/metadata';
 import create, { SetState } from 'zustand';
 import { useListingModifications } from './stores/useCreateListingStore';
-import { omit } from 'lodash';
+import { merge, omit } from 'lodash';
 
 interface ListingsStore {
   put: (key: string, value: ListingData) => void;
@@ -101,10 +101,9 @@ export function useUpdateListing(publicKey: string) {
   useEffect(() => {
     if (!listing) return;
     let metadata = omit(store.modifications, 'onChainAccountData');
-    const final = {
-      ...listing.metadata,
-      ...metadata,
-    };
+    console.log(listing.metadata);
+    const final = merge(listing.metadata, metadata);
+    console.log(final);
     if (JSON.stringify(final) !== JSON.stringify(listing.metadata)) {
       setIsDiff(true);
       setIsLoading(true);
