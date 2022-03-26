@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { useRouter } from 'next/router';
-import { useListing } from './useListing';
+import { useListing, useUpdateListing } from './useListing';
 import { useNetwork } from './WalletConnectionProvider';
 import copy from 'copy-to-clipboard';
 import cn from 'classnames';
@@ -281,11 +281,11 @@ export function ListingLayout(props: { children: any }) {
   const notify = useNotifications();
   const { publicKey, signMessage } = useWallet();
   const router = useRouter();
-  const flag = useNetwork();
-
-  console.log(router);
 
   const { listing } = useListing(router.query.listingPubkey as any);
+  const { cid, isLoading } = useUpdateListing(
+    router.query.listingPubkey as any
+  );
 
   if (!publicKey) {
     return <WalletPage />;
@@ -307,9 +307,22 @@ export function ListingLayout(props: { children: any }) {
         </div>
 
         <div className="flex gap-2 items-center">
-          {/* <button className="border rounded-sm text-xs clear-border-color border-green-700 text-green-400 hover:opacity-50 text-sm bg-gray-800 border-b-2 flex">
-            <div className="px-2 py-1 ">Publish</div>
-          </button> */}
+          {cid && cid !== '' && (
+            <>
+              <button
+                className="border rounded-sm text-xs clear-border-color border-gray-700 hover:opacity-50 text-sm bg-gray-800 border-b-2 flex disabled:opacity-50"
+                disabled={isLoading}
+              >
+                <div className="px-2 py-1 ">Preview</div>
+              </button>
+              <button
+                className="border rounded-sm text-xs clear-border-color border-green-700 text-green-400 hover:opacity-50 text-sm bg-gray-800 border-b-2 flex disabled:opacity-50"
+                disabled={isLoading}
+              >
+                <div className="px-2 py-1 ">Publish</div>
+              </button>
+            </>
+          )}
         </div>
       </div>
 

@@ -2,10 +2,13 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { ListingLayout } from '../../../components/Layout';
 import { useRouter } from 'next/router';
 import { useListing } from '../../../components/useListing';
+import { FormElement } from '../../../components/FormElement';
+import { useListingModifications } from '../../../components/stores/useCreateListingStore';
 
 function ListingView() {
   const router = useRouter();
   const { listing, refetch } = useListing(router.query.listingPubkey as string);
+  const store = useListingModifications();
 
   if (!listing || !listing.publicKey)
     return <div className="flex h-full w-full pattern"></div>;
@@ -14,10 +17,26 @@ function ListingView() {
     <div className="pattern w-full h-full">
       <div className="max-w-6xl mx-auto w-full my-4">
         <div className="flex h-full flex-col w-full mx-auto border-l border-r border-t ">
-          <div className="flex bg-gray-50 dark:bg-black p-4 flex flex-col border-b">
-            <h2 className="font-bold text-lg">{listing.metadata.name}</h2>
-            <p>{listing.metadata.description}</p>
-          </div>
+          <FormElement label="title" required className="">
+            <input
+              className="px-4 py-2 flex w-full bg-foreground "
+              placeholder="ex: 'Form Field Simulator 2'"
+              autoFocus={true}
+              value={store.modifications.name}
+              onChange={(e) => store.change(() => ({ name: e.target.value }))}
+            />
+          </FormElement>
+          <FormElement label="description" className="">
+            <textarea
+              className="px-4 py-2 flex w-full bg-foreground border-0"
+              placeholder="A short paragraph that appears on stores"
+              autoFocus={true}
+              value={store.modifications.description}
+              onChange={(e) =>
+                store.change(() => ({ description: e.target.value }))
+              }
+            />
+          </FormElement>
         </div>
       </div>
     </div>

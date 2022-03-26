@@ -1,11 +1,13 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
 import { grabStrangemood } from './strangemood';
-import { getListingMetadata } from '../lib/graphql';
+import { getListingMetadata, postListingMetadata } from '../lib/graphql';
 import { useEffect, useState } from 'react';
 import { Listing } from '@strangemood/strangemood';
-import { StrangemoodMetadata } from '../lib/metadata';
+import { BLANK_METADATA, StrangemoodMetadata } from '../lib/metadata';
 import create, { SetState } from 'zustand';
+import { useListingModifications } from './stores/useCreateListingStore';
+import { omit } from 'lodash';
 
 interface ListingsStore {
   put: (key: string, value: ListingData) => void;
@@ -57,4 +59,84 @@ export function useListing(publicKey: string) {
   }, [publicKey]);
 
   return { listing: store.listings[publicKey], refetch: fetchListing };
+}
+
+function useDebounce(value: any, delay: number) {
+  // State and setters for debounced value
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(
+    () => {
+      // Update debounced value after delay
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+      // Cancel the timeout if value changes (also on delay change or unmount)
+      // This is how we prevent debounced value from updating if value is changed ...
+      // .. within the delay period. Timeout gets cleared and restarted.
+      return () => {
+        clearTimeout(handler);
+      };
+    },
+    [value, delay] // Only re-call effect if value or delay changes
+  );
+  return debouncedValue;
+}
+
+export function useUpdateListing(publicKey: string) {
+  const { connection } = useConnection();
+  const wallet = useWallet();
+  const store = useListingModifications();
+  const { listing } = useListing(publicKey);
+  const [cid, setCID] = useState<string>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const debouncedStoreModifications = useDebounce(store.modifications, 100);
+
+  // This ensures that the buttons are grayed out when the user starts
+  // typing / modifying, and not when the debounce has hit.
+  //
+  // If you're unsure what that means, try commenting this hook out
+  // and seeing for yourself!
+  useEffect(() => {
+    setIsLoading(true);
+  }, [store.modifications]);
+
+  useEffect(() => {
+    async function load() {
+      if (!listing) return;
+      let metadata = omit(debouncedStoreModifications, 'onChainAccountData');
+      const { key } = await postListingMetadata({
+        ...listing.metadata,
+        ...metadata,
+      });
+      if (
+        key.replace('ipfs://', '') ===
+        listing.account.uri.replace('ipfs://', '')
+      ) {
+        setIsLoading(false);
+        return;
+      }
+
+      setCID(key);
+      setIsLoading(false);
+    }
+    load().catch(console.error);
+  }, [debouncedStoreModifications]);
+
+  async function update() {
+    if (!connection || !wallet || !listing) return;
+    const program = await grabStrangemood(connection, wallet);
+
+    let metadata = omit(store.modifications, 'onChainAccountData');
+    const { key } = await postListingMetadata({
+      ...BLANK_METADATA,
+      ...metadata,
+    });
+  }
+
+  return {
+    update,
+    isLoading,
+    cid,
+  };
 }
