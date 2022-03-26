@@ -89,6 +89,7 @@ export function useUpdateListing(publicKey: string) {
   const { listing } = useListing(publicKey);
   const [cid, setCID] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isDiff, setIsDiff] = useState<boolean>(false);
 
   const debouncedStoreModifications = useDebounce(store.modifications, 100);
 
@@ -98,7 +99,18 @@ export function useUpdateListing(publicKey: string) {
   // If you're unsure what that means, try commenting this hook out
   // and seeing for yourself!
   useEffect(() => {
-    setIsLoading(true);
+    if (!listing) return;
+    let metadata = omit(store.modifications, 'onChainAccountData');
+    const final = {
+      ...listing.metadata,
+      ...metadata,
+    };
+    if (JSON.stringify(final) !== JSON.stringify(listing.metadata)) {
+      setIsDiff(true);
+      setIsLoading(true);
+    } else {
+      setIsDiff(false);
+    }
   }, [store.modifications]);
 
   useEffect(() => {
@@ -137,6 +149,7 @@ export function useUpdateListing(publicKey: string) {
   return {
     update,
     isLoading,
+    isDiff,
     cid,
   };
 }

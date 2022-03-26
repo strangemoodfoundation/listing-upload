@@ -16,7 +16,7 @@ function ListingView() {
   return (
     <div className="pattern w-full h-full">
       <div className="max-w-6xl mx-auto w-full my-4">
-        <div className="flex h-full flex-col w-full mx-auto border-l border-r border-t ">
+        <div className="flex h-full flex-col w-full mx-auto border-l border-r border-t border-b">
           <FormElement label="title" required className="">
             <input
               className="px-4 py-2 flex w-full bg-foreground "

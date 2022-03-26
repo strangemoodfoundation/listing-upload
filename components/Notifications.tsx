@@ -61,23 +61,16 @@ export default function Notifications(props: any) {
     }>
   >([]);
 
-  const transitions = useTransition(
-    notifications,
-    (i: any) => {
-      if (!i) return '';
-      else return i.id;
+  const transitions = useTransition(notifications, {
+    from: { transform: 'translate3d(0,-40px,0)' },
+    enter: { transform: 'translate3d(0,0px,0)' },
+    leave: { transform: 'translate3d(0,-40px,0)' },
+    config: {
+      duration: 80,
     },
-    {
-      from: { transform: 'translate3d(0,-40px,0)' },
-      enter: { transform: 'translate3d(0,0px,0)' },
-      leave: { transform: 'translate3d(0,-40px,0)' },
-      config: {
-        duration: 80,
-      },
-    } as any
-  );
+  });
 
-  const els = transitions.map(({ item: n, props, key }: any) => (
+  const els = transitions(({ item: n, props, key }: any) => (
     <animated.div key={key} style={props} className="flex m-auto">
       <Notification type={n.type} shown={n.shown} key={n.id}>
         {n.msg}

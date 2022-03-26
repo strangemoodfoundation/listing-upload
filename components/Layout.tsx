@@ -4,11 +4,15 @@ import {
   CloudUploadIcon,
   HeartIcon,
   HomeIcon,
+  LightningBoltIcon,
   LinkIcon,
   QuestionMarkCircleIcon,
+  SaveIcon,
   SwitchHorizontalIcon,
   TableIcon,
   TerminalIcon,
+  UploadIcon,
+  XCircleIcon,
 } from '@heroicons/react/solid';
 import { useNotifications } from '../components/Notifications';
 import Link from 'next/link';
@@ -19,6 +23,7 @@ import { useListing, useUpdateListing } from './useListing';
 import { useNetwork } from './WalletConnectionProvider';
 import copy from 'copy-to-clipboard';
 import cn from 'classnames';
+import { animated, useTransition } from 'react-spring';
 
 function ClusterCommands() {
   const router = useRouter();
@@ -277,13 +282,59 @@ function Tab(props: { children: any; active?: boolean; href: string }) {
   );
 }
 
+function PublishLayover() {
+  const router = useRouter();
+  const { cid, isLoading, isDiff } = useUpdateListing(
+    router.query.listingPubkey as any
+  );
+
+  const transitions = useTransition(isDiff, {
+    from: { transform: 'translate3d(0,40px,0)', opacity: 0 },
+    enter: { transform: 'translate3d(0,0px,0)', opacity: 1 },
+    leave: { transform: 'translate3d(0,150px,0)', opacity: 0 },
+    reverse: isDiff,
+  });
+
+  return transitions(
+    (styles, item) =>
+      item && (
+        <div className="fixed z-50 bottom-12 px-4 right-0">
+          <animated.div style={styles}>
+            <div className="border px-4 text-sm py-2 bg-white bg-opacity-50 bg-blur shadow-lg rounded  border-black clear-border-color gap-2 flex flex-col">
+              <div className="text-xs flex justify-between">
+                <div className="text-xs">You have changes ready to deploy.</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  className="border rounded-sm text-xs clear-border-color border-black bg-white hover:opacity-50 font-mono text-sm border-b-2 flex cursor-pointer"
+                  disabled={isLoading}
+                >
+                  <div className="px-2 py-1 ">Preview</div>
+                </button>
+                <button
+                  className="border  rounded-sm text-xs clear-border-color border-green-900 bg-green-400 hover:opacity-50  font-mono text-sm border-b-2 flex cursor-pointer"
+                  disabled={isLoading}
+                >
+                  <div className="px-2 py-1 flex items-center ">
+                    Publish Changes
+                    <LightningBoltIcon className="h-3 w-3 ml-2" />
+                  </div>
+                </button>
+              </div>
+            </div>
+          </animated.div>
+        </div>
+      )
+  );
+}
+
 export function ListingLayout(props: { children: any }) {
   const notify = useNotifications();
   const { publicKey, signMessage } = useWallet();
   const router = useRouter();
 
   const { listing } = useListing(router.query.listingPubkey as any);
-  const { cid, isLoading } = useUpdateListing(
+  const { cid, isLoading, isDiff } = useUpdateListing(
     router.query.listingPubkey as any
   );
 
@@ -295,6 +346,8 @@ export function ListingLayout(props: { children: any }) {
     <div className="flex flex-col h-full bg-gray-900 ">
       <ClusterBanner />
 
+      <PublishLayover />
+
       <div className="px-4 pt-4 text-white flex justify-between max-w-6xl mx-auto w-full">
         <div>
           <div className="font-bold flex h-6">
@@ -304,25 +357,6 @@ export function ListingLayout(props: { children: any }) {
             {' '}
             {listing && listing.metadata && listing.metadata.description}
           </div>
-        </div>
-
-        <div className="flex gap-2 items-center">
-          {cid && cid !== '' && (
-            <>
-              <button
-                className="border rounded-sm text-xs clear-border-color border-gray-700 hover:opacity-50 text-sm bg-gray-800 border-b-2 flex disabled:opacity-50"
-                disabled={isLoading}
-              >
-                <div className="px-2 py-1 ">Preview</div>
-              </button>
-              <button
-                className="border rounded-sm text-xs clear-border-color border-green-700 text-green-400 hover:opacity-50 text-sm bg-gray-800 border-b-2 flex disabled:opacity-50"
-                disabled={isLoading}
-              >
-                <div className="px-2 py-1 ">Publish</div>
-              </button>
-            </>
-          )}
         </div>
       </div>
 
