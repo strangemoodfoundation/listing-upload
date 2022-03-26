@@ -295,6 +295,8 @@ function PublishLayover() {
     reverse: isDiff,
   });
 
+  function onPublish() {}
+
   return transitions(
     (styles, item) =>
       item && (
@@ -306,14 +308,15 @@ function PublishLayover() {
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  className="border rounded-sm text-xs clear-border-color border-black bg-white hover:opacity-50 font-mono text-sm border-b-2 flex cursor-pointer"
-                  disabled={isLoading}
+                  className="border rounded-sm text-xs clear-border-color border-black bg-white hover:opacity-50 disabled:opacity-50 font-mono text-sm border-b-2 flex cursor-pointer"
+                  disabled={true}
                 >
                   <div className="px-2 py-1 ">Preview</div>
                 </button>
                 <button
-                  className="border  rounded-sm text-xs clear-border-color border-green-900 bg-green-400 hover:opacity-50  font-mono text-sm border-b-2 flex cursor-pointer"
+                  className="border  rounded-sm text-xs clear-border-color border-green-900 bg-green-400 hover:opacity-50 disabled:opacity-50 font-mono text-sm border-b-2 flex cursor-pointer"
                   disabled={isLoading}
+                  onClick={onPublish}
                 >
                   <div className="px-2 py-1 flex items-center ">
                     Publish Changes
@@ -322,6 +325,18 @@ function PublishLayover() {
                 </button>
               </div>
             </div>
+            <Command
+              id="publish"
+              onExecute={() => {
+                onPublish();
+              }}
+              search={['publish', 'publish changes']}
+              className="p-base justify-between flex w-full items-center"
+              category="Editing"
+            >
+              <div>Publish Changes</div>
+              <LightningBoltIcon className="h-4 w-4 mr-2" />
+            </Command>
           </animated.div>
         </div>
       )
@@ -482,7 +497,7 @@ export function ListingLayout(props: { children: any }) {
       )}
       <ClusterCommands />
 
-      <div className="dark:bg-black bg-gray-100 flex border-t px-2 py-1 text-xs justify-between">
+      <div className="dark:bg-black bg-white flex border-t px-2 py-1 text-xs justify-between">
         <a
           href="https://github.com/strangemoodfoundation/studio"
           className="underline text-muted"
