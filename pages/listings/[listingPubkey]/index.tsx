@@ -1,9 +1,8 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { ListingLayout } from '../../../components/Layout';
 import { useRouter } from 'next/router';
-import { useListing, useUpdateListing } from '../../../components/useListing';
+import { useUpdateListing } from '../../../components/useListing';
 import { FormElement } from '../../../components/FormElement';
-import { useListingModifications } from '../../../components/stores/useCreateListingStore';
 
 function ListingView() {
   const router = useRouter();

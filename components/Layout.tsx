@@ -122,15 +122,7 @@ function WalletPage() {
           </div>
         </div>
       </div>
-      <div className="px-2 text-muted py-1 dark:bg-black border-t flex items-center text-sm text-center justify-center">
-        <QuestionMarkCircleIcon className="h-4 w-4 mr-2" />
-        <div>
-          Need help? Ask questions or get a walkthrough from the co-op on{' '}
-          <a className="underline" href="https://discord.com/invite/Y2R3VBcRmA">
-            Discord.
-          </a>
-        </div>
-      </div>
+      <div className="px-2 text-muted py-1 dark:bg-black border-t flex items-center text-sm text-center justify-center"></div>
     </div>
   );
 }
@@ -190,17 +182,7 @@ export function MainLayout(props: { children: any }) {
           <div>Go to all listings</div>
         </div>
       </Command>
-      <Command
-        id="help"
-        onExecute={() => {
-          router.push('https://discord.gg/Y2R3VBcRmA');
-        }}
-        search={['discord', 'support', 'help', 'faq', 'docs']}
-        className="p-base justify-between flex w-full items-center"
-        category="Support"
-      >
-        <div>Discord</div>
-      </Command>
+
       <Command
         id="go-to-co-op"
         onExecute={() => {
@@ -250,12 +232,6 @@ export function MainLayout(props: { children: any }) {
           Edit this website
         </a>
         <div className="text-muted">{publicKey.toBase58()}</div>
-        <a
-          href="https://discord.com/invite/Y2R3VBcRmA"
-          className="underline text-muted"
-        >
-          Discord
-        </a>
       </div>
     </div>
   );
@@ -266,7 +242,7 @@ function Tab(props: { children: any; active?: boolean; href: string }) {
     <Link href={props.href}>
       <a
         className={cn({
-          'text-sm px-2 pb-2 flex': true,
+          'text-sm px-2 pb-2 flex hover:opacity-60 transition-all': true,
           'border-b-2 border-blue-500 clear-border-color': props.active,
         })}
       >
@@ -398,6 +374,42 @@ export function ListingLayout(props: { children: any }) {
               </Command>
             )}
 
+            {/* <Tab
+              active={router.route === '/listings/[listingPubkey]/media'}
+              href={
+                listing
+                  ? `/listings/${listing.publicKey.toString()}/media`
+                  : '#'
+              }
+            >
+              Media
+            </Tab> */}
+
+            {/* {router.route !== '/listings/[listingPubkey]/media' && (
+              <Command
+                id="tab-media"
+                onExecute={() => {
+                  router.push(
+                    `/listings/${listing.publicKey.toString()}/media`
+                  );
+                }}
+                search={[
+                  'media',
+                  'videos',
+                  'screenshots',
+                  'photos',
+                  'go to media',
+                ]}
+                className="p-base justify-between flex w-full items-center"
+                category="Navigation"
+              >
+                <div className="flex items-center">
+                  <ArrowRightIcon className="h-4 w-4 mr-2 text-muted" />
+                  <div>Go to media</div>
+                </div>
+              </Command>
+            )} */}
+
             <Tab
               active={router.route === '/listings/[listingPubkey]/files'}
               href={
@@ -406,7 +418,7 @@ export function ListingLayout(props: { children: any }) {
                   : '#'
               }
             >
-              Game Files
+              Builds
             </Tab>
 
             {router.route !== '/listings/[listingPubkey]/files' && (
@@ -422,14 +434,14 @@ export function ListingLayout(props: { children: any }) {
                   'upload',
                   'game files',
                   'build',
-                  'go to game files',
+                  'go to builds',
                 ]}
                 className="p-base justify-between flex w-full items-center"
                 category="Navigation"
               >
                 <div className="flex items-center">
                   <ArrowRightIcon className="h-4 w-4 mr-2 text-muted" />
-                  <div>Go to game files</div>
+                  <div>Go to builds</div>
                 </div>
               </Command>
             )}
@@ -450,18 +462,6 @@ export function ListingLayout(props: { children: any }) {
           <ArrowRightIcon className="h-4 w-4 mr-2 text-muted" />
           <div>Go to all listings</div>
         </div>
-      </Command>
-      <Command
-        id="help"
-        onExecute={() => {
-          router.push('https://discord.gg/Y2R3VBcRmA');
-        }}
-        search={['discord', 'support', 'help', 'faq', 'docs']}
-        className="p-base justify-between flex w-full items-center"
-        category="Support"
-      >
-        <div>Discord</div>
-        <HeartIcon className="text-muted h-4 w-4" />
       </Command>
 
       {listing && (
@@ -497,13 +497,6 @@ export function ListingLayout(props: { children: any }) {
           className="underline text-muted"
         >
           Edit this website
-        </a>
-        <div className="text-muted">{publicKey.toBase58()}</div>
-        <a
-          href="https://discord.com/invite/Y2R3VBcRmA"
-          className="underline text-muted"
-        >
-          Discord
         </a>
       </div>
     </div>
