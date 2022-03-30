@@ -80,7 +80,7 @@ export const BLANK_METADATA = {
   links: [],
   tags: [],
   videos: [],
-  platforms: [],
+  channels: [],
   primaryImage: {
     src: {
       uri: '',

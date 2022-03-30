@@ -86,7 +86,7 @@ function UploadFiles() {
                 {listing.metadata.channels.map((channel) => (
                   <div
                     className="p-4 flex flex-col border-t"
-                    key={'platform' + channel.name}
+                    key={'channel' + channel.name}
                   >
                     <div>{channel.name}</div>
                     <div>
