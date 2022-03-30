@@ -7,17 +7,6 @@ import {
   OpenMetaGraphStringElement,
 } from 'openmetagraph';
 
-export const SCHEMAS = {
-  STRANGEMOOD: 'QmRcvWdCSQXdVdwLpsepqb8BAvfR9SJLDtk1LnrwjNnGvd',
-  BASE: 'QmW8f7bdgVLBMDQ8vKY8oX4FqDpZr1WkfP1YQrG6XkkbUj',
-  TIMESTAMPS: 'QmYuekxuXRN8JmothpSGrjsDKtokSpdsKmjBJy9UommeL7',
-  LISTING: 'QmTQQoP6d2vz5S1JvJdpzj1g9P4yY55nqYsueBnBQM8oR6',
-  WITH_PLATFORMS: 'QmcWAxKACUKhkmrQxMg2jZHb8pCBYvBMEPdemvqCyt8gQd',
-  PLATFORM: 'QmQxk73K9kqZYoHtmeTMMAhVthKM37v8iEjFQBy7BpJKQp',
-  IMAGE: 'QmULNXS47mirHDh3fr2nMvaGsBbBVgy6aweNVvwJMFxQGN',
-  FILE: 'QmNZbtpfw4E1w1wcgE1Mrr6Cd4qSk3JWm3AePriAFsNF2z',
-};
-
 export interface FileMetadata {
   contentType: string;
   uri: string;
@@ -56,9 +45,9 @@ export interface PrecryptNodeMetadata {
   arguments: string[];
 }
 
-export interface PlatformNodeMetadata {
+export interface ChannelNodeMetadata {
   precrypts: PrecryptNodeMetadata[];
-  type: string;
+  name: string;
 }
 
 export interface FileNodeMetadata {
@@ -78,7 +67,7 @@ export interface StrangemoodMetadata {
   links: SocialLinkNodeMetadata[];
   tags: string[];
   videos: VideoNodeMetadata[];
-  platforms: PlatformNodeMetadata[];
+  channels: ChannelNodeMetadata[];
 }
 
 export const BLANK_METADATA = {

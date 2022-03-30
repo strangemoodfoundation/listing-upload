@@ -2,7 +2,7 @@ import { request, gql } from 'graphql-request';
 import { StrangemoodMetadata } from './metadata';
 
 const LISTING_METADATA_SCHEMA =
-  'bafkreiczgupdf5ha7jt5oqn77koptvclt7edfzriu34ozgeqnasmhyio6a';
+  'bafkreibopwmdififexwuea3kjqmvcgiokvfbbrc3jz6iutwqhl6gynsq3u';
 
 export async function getListingMetadata(
   uri: string
@@ -29,11 +29,21 @@ export async function getListingMetadata(
             url
             type
           }
+          primaryImage {
+            height
+            width
+            alt
+            src {
+              contentType
+              uri
+            }
+          }
         }
         createdAt
         updatedAt
         links {
           type
+          uri
         }
         images {
           height
@@ -52,8 +62,8 @@ export async function getListingMetadata(
             contentType
           }
         }
-        platforms {
-          type
+        channels {
+          name
           precrypts {
             key {
               uri
