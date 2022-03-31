@@ -52,7 +52,7 @@ const Home: NextPage = () => {
 
     setUploadingImage(false);
 
-    notify('success', 'Image uploaded!');
+    // notify('success', 'Image uploaded!');
   }
 
   const [isPublishing, setIsPublishing] = useState(false);
@@ -65,7 +65,7 @@ const Home: NextPage = () => {
       notify('error', 'Please select an image');
       return;
     }
-    notify('info', 'Uploading...');
+    // notify('info', 'Uploading...');
     setIsPublishing(true);
 
     // upload metadata to IPFS
@@ -75,7 +75,7 @@ const Home: NextPage = () => {
       ...metadata,
     });
 
-    notify('info', 'Created metadata...');
+    // notify('info', 'Created metadata...');
 
     // Create a new listing
     const program = await grabStrangemood(connection, wallet);
@@ -100,7 +100,7 @@ const Home: NextPage = () => {
 
     setIsPublishing(false);
     router.push('/listings/' + inx.listing.toBase58());
-    notify('info', inx.listing.toBase58());
+    // notify('info', inx.listing.toBase58());
   }
 
   return (

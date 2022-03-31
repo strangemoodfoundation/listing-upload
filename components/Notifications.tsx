@@ -72,7 +72,7 @@ export default function Notifications(props: any) {
 
   const els = transitions(({ item: n, props, key }: any) => (
     <animated.div key={key} style={props} className="flex m-auto">
-      <Notification type={n.type} shown={n.shown} key={n.id}>
+      <Notification type={n?.type || 'info'} shown={n.shown} key={n.id}>
         {n.msg}
       </Notification>
     </animated.div>
