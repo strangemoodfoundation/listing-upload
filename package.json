@@ -26,6 +26,7 @@
     "ipfs-http-client": "^56.0.1",
     "lodash": "^4.17.21",
     "next": "^12.1.2",
+    "next-http-proxy-middleware": "^1.2.4",
     "openmetagraph": "^0.0.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

@@ -5,16 +5,18 @@ import { ListingLayout } from '../../../components/Layout';
 import { useDropzone } from 'react-dropzone';
 import * as IPFS from 'ipfs-http-client';
 import { useState } from 'react';
+import { IFPS_API_ENDPOINT } from '../../../lib/constants';
 
 function Media() {
   const [cids, setCIDS] = useState<string[]>([]);
 
   async function onDrop(files: File[]) {
-    const client = IPFS.create('http://174.138.118.56:8080' as any);
+    const client = IPFS.create(IFPS_API_ENDPOINT as any);
     for (let file of files) {
       const cid = await client.add(await file.arrayBuffer());
       console.log(cid);
       setCIDS([...cids, cid.cid.toString()]);
+      console.log('cids');
     }
   }
 
@@ -54,7 +56,8 @@ function Media() {
             <div className="font-bold">Screenshots</div>
             <div className="flex flex-col">
               {cids.map((cid) => (
-                <div className="flex items-center">
+                <div className="flex items-center" key={cid}>
+                  hi
                   <img src={`https://cloudflare-ipfs.com/ipfs/${cid}`} />
                 </div>
               ))}
