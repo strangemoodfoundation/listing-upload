@@ -1,5 +1,7 @@
 import httpProxyMiddleware from 'next-http-proxy-middleware';
 
+// TODO: Rip out infura for a DAO-run deployment instead that let's us control
+// peering
 export default (req: any, res: any) =>
   httpProxyMiddleware(req, res, {
     target: 'https://ipfs.infura.io:5001',

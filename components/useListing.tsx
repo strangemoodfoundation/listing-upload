@@ -1,9 +1,9 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import { grabStrangemood } from './strangemood';
 import { getListingMetadata, postListingMetadata } from '../lib/graphql';
 import { useEffect, useState } from 'react';
-import { Listing } from '@strangemood/strangemood';
+import { Listing, setListingUri } from '@strangemood/strangemood';
 import { BLANK_METADATA, StrangemoodMetadata } from '../lib/metadata';
 import create, { SetState } from 'zustand';
 import { useListingModifications } from './stores/useCreateListingStore';
@@ -82,6 +82,10 @@ function useDebounce(value: any, delay: number) {
   return debouncedValue;
 }
 
+function deepClone(object: any) {
+  return JSON.parse(JSON.stringify(object));
+}
+
 export function useUpdateListing(publicKey: string) {
   const { connection } = useConnection();
   const wallet = useWallet();
@@ -99,7 +103,10 @@ export function useUpdateListing(publicKey: string) {
   useEffect(() => {
     if (!listing || !listing.metadata) return;
     store.change((data) => {
-      const final = merge({ ...listing.metadata }, { ...data });
+      const final = merge(
+        { ...deepClone(listing.metadata) },
+        { ...deepClone(data) }
+      );
       return final;
     });
   }, [listing]);
@@ -112,7 +119,11 @@ export function useUpdateListing(publicKey: string) {
   useEffect(() => {
     if (!listing) return;
     let metadata = omit(store.modifications, 'onChainAccountData');
-    const final = merge({ ...listing.metadata }, { ...metadata }); // merge mutates, hence the ...
+    const final = merge(
+      { ...deepClone(listing.metadata) },
+      { ...deepClone(metadata) }
+    ); // merge mutates, hence the ... and deepClone
+
     if (JSON.stringify(final) !== JSON.stringify(listing.metadata)) {
       setIsDiff(true);
       setIsLoading(true);
@@ -144,6 +155,7 @@ export function useUpdateListing(publicKey: string) {
   }, [debouncedStoreModifications]);
 
   async function publish() {
+    console.log('Publish');
     if (!connection || !wallet || !listing) return;
     const program = await grabStrangemood(connection, wallet);
 
@@ -153,7 +165,17 @@ export function useUpdateListing(publicKey: string) {
       ...metadata,
     });
 
-    // todo
+    const { instructions } = await setListingUri({
+      program,
+      listing: new PublicKey(listing.publicKey),
+      signer: program.provider.wallet.publicKey,
+      uri: 'ipfs://' + key,
+    });
+
+    let tx = new Transaction();
+    tx.add(...instructions);
+    await program.provider.send(tx);
+    console.log('did it');
   }
 
   return {

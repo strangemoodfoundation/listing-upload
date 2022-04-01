@@ -254,7 +254,7 @@ function Tab(props: { children: any; active?: boolean; href: string }) {
 
 function PublishLayover() {
   const router = useRouter();
-  const { cid, isLoading, isDiff } = useUpdateListing(
+  const { cid, isLoading, isDiff, publish } = useUpdateListing(
     router.query.listingPubkey as any
   );
 
@@ -265,7 +265,10 @@ function PublishLayover() {
     reverse: isDiff,
   });
 
-  function onPublish() {}
+  function onPublish() {
+    // TODO notify
+    publish().catch(console.error);
+  }
 
   return transitions(
     (styles, item) =>

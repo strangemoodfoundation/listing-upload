@@ -4,19 +4,40 @@ import { useRouter } from 'next/router';
 import { ListingLayout } from '../../../components/Layout';
 import { useDropzone } from 'react-dropzone';
 import * as IPFS from 'ipfs-http-client';
-import { useState } from 'react';
 import { IFPS_API_ENDPOINT } from '../../../lib/constants';
+import { useUpdateListing } from '../../../components/useListing';
 
 function Media() {
-  const [cids, setCIDS] = useState<string[]>([]);
+  const router = useRouter();
+
+  const { listing, draft, change } = useUpdateListing(
+    router.query.listingPubkey as string
+  );
 
   async function onDrop(files: File[]) {
     const client = IPFS.create(IFPS_API_ENDPOINT as any);
     for (let file of files) {
       const cid = await client.add(await file.arrayBuffer());
-      console.log(cid);
-      setCIDS([...cids, cid.cid.toString()]);
-      console.log('cids');
+
+      // TODO prevent duplicate uploads
+
+      change((state) => ({
+        images: [
+          ...(state.images || []),
+          {
+            src: {
+              // Extra TODO: Eventually we should switch off of infura
+              // TODO: it might be better to use an IPFS:// instead
+              // though that might be slow.
+              uri: `https://strangemood.infura-ipfs.io/ipfs/${cid.cid.toString()}`,
+              contentType: 'image/png',
+            },
+            width: 0,
+            height: 0,
+            alt: 'alt',
+          },
+        ],
+      }));
     }
   }
 
@@ -55,10 +76,12 @@ function Media() {
           <div className="mt-4">
             <div className="font-bold">Screenshots</div>
             <div className="flex flex-col">
-              {cids.map((cid) => (
-                <div className="flex items-center" key={cid}>
-                  hi
-                  <img src={`https://cloudflare-ipfs.com/ipfs/${cid}`} />
+              {(draft.images || []).map((image) => (
+                <div
+                  className="flex items-center"
+                  key={'draft-' + image.src.uri}
+                >
+                  <img src={image.src.uri} />
                 </div>
               ))}
             </div>
