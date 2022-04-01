@@ -11,8 +11,8 @@ export default (req: any, res: any) =>
     // In addition, you can use the `pathRewrite` option provided by `next-http-proxy`
     pathRewrite: [
       {
-        patternStr: '^/api/ipfs-api',
-        replaceStr: '',
+        patternStr: '^\\/api\\/ipfs-api',
+        replaceStr: '/api/v0',
       },
     ],
   });

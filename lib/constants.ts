@@ -1,1 +1,1 @@
-export const IFPS_API_ENDPOINT = 'http://localhost:9000';
+export const IFPS_API_ENDPOINT = 'https://studio.strangemood.org/api/ipfs-api';
