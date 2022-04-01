@@ -374,7 +374,7 @@ export function ListingLayout(props: { children: any }) {
               </Command>
             )}
 
-            {/* <Tab
+            <Tab
               active={router.route === '/listings/[listingPubkey]/media'}
               href={
                 listing
@@ -383,9 +383,9 @@ export function ListingLayout(props: { children: any }) {
               }
             >
               Media
-            </Tab> */}
+            </Tab>
 
-            {/* {router.route !== '/listings/[listingPubkey]/media' && (
+            {router.route !== '/listings/[listingPubkey]/media' && (
               <Command
                 id="tab-media"
                 onExecute={() => {
@@ -408,7 +408,7 @@ export function ListingLayout(props: { children: any }) {
                   <div>Go to media</div>
                 </div>
               </Command>
-            )} */}
+            )}
 
             <Tab
               active={router.route === '/listings/[listingPubkey]/files'}
