@@ -6,9 +6,11 @@ import { useDropzone } from 'react-dropzone';
 import * as IPFS from 'ipfs-http-client';
 import { IFPS_API_ENDPOINT } from '../../../lib/constants';
 import { useUpdateListing } from '../../../components/useListing';
+import { useNotifications } from '../../../components/Notifications';
 
 function Media() {
   const router = useRouter();
+  const notify = useNotifications();
 
   const { listing, draft, change } = useUpdateListing(
     router.query.listingPubkey as string

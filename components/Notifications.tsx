@@ -1,6 +1,6 @@
 import cn from 'classnames';
 import { createContext, useContext, useState } from 'react';
-import { useTransition, animated } from 'react-spring';
+import { useTransition, animated, config } from 'react-spring';
 import { v4 as uuid } from 'uuid';
 
 export type NotificationType = 'info' | 'success' | 'error' | 'warning';
@@ -13,15 +13,11 @@ function Notification(props: {
   return (
     <div
       className={cn({
-        'transition-all my-4 flex-col mx-auto rounded-md border flex  shadow-2xl relative z-50 bg-white dark:bg-black  ':
+        'transition-all my-4 flex-col mx-auto rounded-md border flex  shadow-2xl relative z-50 bg-white dark:bg-black  opacity-100':
           true,
         'border-green-500': props.type === 'success',
         'border-yellow-500': props.type === 'warning',
         'border-red-500': props.type === 'error',
-        'opacity-100': props.shown,
-        'opacity-0': !props.shown,
-        '-top-10': !props.shown,
-        'top-0': props.shown,
       })}
     >
       <div
@@ -62,19 +58,38 @@ export default function Notifications(props: any) {
   >([]);
 
   const transitions = useTransition(notifications, {
-    from: { transform: 'translate3d(0,-40px,0)' },
-    enter: { transform: 'translate3d(0,0px,0)' },
-    leave: { transform: 'translate3d(0,-40px,0)' },
+    from: { transform: 'translate3d(0, 0px, 0)', opacity: 0 },
+    enter: { transform: 'translate3d(0,40px,0)', opacity: 1 },
+    leave: { transform: 'translate3d(0,-40px,0)', opacity: 0 },
     config: {
       duration: 80,
     },
   });
 
-  const els = transitions(({ item: n, props, key }: any) => (
-    <animated.div key={key} style={props} className="flex m-auto">
-      <Notification type={n?.type || 'info'} shown={n.shown} key={n.id}>
-        {n.msg}
-      </Notification>
+  const els = transitions((styles, n) => (
+    <animated.div
+      style={styles}
+      className={cn({
+        'my-4 relative flex-col mx-auto transition-all rounded-md border flex shadow-2xl z-50 bg-white dark:bg-black opacity-100':
+          true,
+        'border-green-500': n.type === 'success',
+        'border-yellow-500': n.type === 'warning',
+        'border-red-500': n.type === 'error',
+        '-top-10': n.shown,
+        'top-0': !n.shown,
+      })}
+      key={n.id}
+    >
+      <div
+        className={cn({
+          ' w-full  rounded-tr-md rounded-tl-md border-top': true,
+          hidden: n.type === 'info',
+          'bg-green-500 h-1': n.type === 'success',
+          'bg-yellow-500 h-1': n.type === 'warning',
+          'bg-red-500 h-1': n.type === 'error',
+        })}
+      />
+      <div className="px-4 py-2">{n.msg}</div>
     </animated.div>
   ));
 
@@ -100,7 +115,7 @@ export default function Notifications(props: any) {
         ns[i].shown = false;
         return [...ns];
       });
-    }, 3000);
+    }, 100);
 
     setTimeout(() => {
       setNotification((ns) => {
@@ -115,7 +130,9 @@ export default function Notifications(props: any) {
         notify,
       }}
     >
-      <div className="fixed w-full flex flex-col z-40">{els}</div>
+      <div className="fixed w-full flex flex-col z-40">
+        <div className="flex flex-col mx-auto">{els}</div>
+      </div>
       {props.children}
     </notificationCtx.Provider>
   );

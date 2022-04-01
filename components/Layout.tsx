@@ -336,6 +336,19 @@ export function ListingLayout(props: { children: any }) {
 
       <PublishLayover />
 
+      <Command
+        id="notify"
+        onExecute={() => {
+          notify('info', 'hi');
+        }}
+        search={['notify', 'publish changes']}
+        className="p-base justify-between flex w-full items-center"
+        category="Editing"
+      >
+        <div>Notify</div>
+        <LightningBoltIcon className="h-4 w-4 mr-2" />
+      </Command>
+
       <div className="px-4 pt-4 text-white flex justify-between max-w-6xl mx-auto w-full">
         <div>
           <div className="font-bold flex h-6">
